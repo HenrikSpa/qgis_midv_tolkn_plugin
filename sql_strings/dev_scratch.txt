@@ -1,0 +1,46 @@
+update tillromr
+set "dagvatten_lPs"= (
+        SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100))*(gvbildn_mm/(365*24*3600))*(andel_t_mag_proc/100)
+        FROM
+        (SELECT ST_Intersection(tillromr.geometry, d.geometry) as inters, bortledning_proc
+        FROM dagvatten AS d
+        WHERE --ST_Intersects(tillromr.geometry, d.geometry) AND
+            d.ROWID IN (
+	     SELECT rowid FROM SpatialIndex
+             WHERE f_table_name = 'dagvatten'
+             AND search_frame = tillromr.geometry)) AS foo
+        WHERE st_dimension(inters) = 2
+       );
+
+CREATE TRIGGER "tau_tillromr_flode_lPs" AFTER UPDATE ON "tillromr"
+WHEN (0 < (select count() from "tillromr" where
+           (NEW.gvbildn_mm !=OLD.gvbildn_mm
+           or NEW.andel_t_mag_proc != OLD.andel_t_mag_proc
+           or NEW.area_km2 != OLD.area_km2
+           or (NEW.gvbildn_mm is not null and OLD.gvbildn_mm is null)
+           or (NEW.andel_t_mag_proc is not null and OLD.andel_t_mag_proc is null)
+           or (NEW.area_km2 is not null and OLD.area_km2 is null))))
+           BEGIN
+
+           update tillromr SET flode_lPs = round(ST_Area(geometry)*(gvbildn_mm/(365*24*3600))*andel_t_mag_proc/100.0,1)
+           WHERE (NEW.gvbildn_mm !=OLD.gvbildn_mm or NEW.andel_t_mag_proc != OLD.andel_t_mag_proc or NEW.area_km2 != OLD.area_km2 or
+           (NEW.gvbildn_mm is not null and OLD.gvbildn_mm is null) or
+           (NEW.andel_t_mag_proc is not null and OLD.andel_t_mag_proc is null)
+            or (NEW.area_km2 is not null and OLD.area_km2 is null) and (NEW.gvbildn_mm is not null and NEW.andel_t_mag_proc is not null and NEW.area_km2 is not null));
+
+           update tillromr SET "dagvatten_lPs" = (
+                SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100))*(NEW.gvbildn_mm/86400)*(NEW.andel_t_mag_proc/100)
+                FROM
+                (SELECT ST_Intersection(NEW.geometry, d.geometry) as inters, bortledning_proc
+                FROM dagvatten AS d
+                WHERE d.ROWID IN (
+                     SELECT rowid FROM SpatialIndex
+                     WHERE f_table_name = 'dagvatten'
+                     AND search_frame = tillromr.geometry)) AS foo
+                WHERE st_dimension(inters) = 2
+               )
+           WHERE (NEW.gvbildn_mm !=OLD.gvbildn_mm or NEW.andel_t_mag_proc != OLD.andel_t_mag_proc or NEW.area_km2 != OLD.area_km2 or
+            (NEW.gvbildn_mm is not null and OLD.gvbildn_mm is null) or (NEW.andel_t_mag_proc is not null and OLD.andel_t_mag_proc is null) or
+            (NEW.area_km2 is not null and OLD.area_km2 is null) and (NEW.gvbildn_mm is not null and NEW.andel_t_mag_proc is not null and NEW.area_km2 is not null));
+
+            END;

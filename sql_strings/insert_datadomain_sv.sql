@@ -11,6 +11,7 @@ insert into  "zz_gvdel"("typ","beskrivning") values ('rörlig','rörlig grundvat
 insert into  "zz_gvdel"("typ","beskrivning") values ('annan gräns','annan gräns');
 insert into  "zz_gvmag"("typ","beskrivning") values ('huvudmag','huvudmagasinet');
 insert into  "zz_gvmag"("typ","beskrivning") values ('centralt','central del av huvudmagasinet');
+insert into  "zz_gvmag"("typ","beskrivning") values ('perifert','perifer del av huvudmagasinet');
 insert into  "zz_gvmag"("typ","beskrivning") values ('jordlager','magasin i jordlager');
 insert into  "zz_gvmag"("typ","beskrivning") values ('överlagrande magasin','magasin i jordlager som överlagrar något annat magasin');
 insert into  "zz_gvmag"("typ","beskrivning") values ('ytliga jordlager','magasin i ytliga jordlager');
@@ -21,14 +22,19 @@ insert into  "zz_tillromr"("typ","beskrivning") values ('b','typ b - hela gvbild
 insert into  "zz_tillromr"("typ","beskrivning") values ('c','typ c - delar av gvbildn når magasinet');
 insert into  "zz_strukturlinje"("typ","beskrivning") values ('spröd','spröd deformationszon');
 insert into  "zz_strukturlinje"("typ","beskrivning") values ('plastisk','plastisk deformtionszon');
-insert into  "zz_strukturlinje"("typ","beskrivning") values ('strukturell','strukturell formlinje');
-insert into  "zz_strukturlinje"("typ","beskrivning") values ('kontakt','litologisk kontakt');
+insert into  "zz_strukturlinje"("typ","beskrivning") values ('strukturell','BYT TILL ANNAN. DENNA SKA TAS BORT. strukturell formlinje');
+insert into  "zz_strukturlinje"("typ","beskrivning") values ('kontakt','BYT TILL ANNAN. DENNA SKA TAS BORT. litologisk kontakt');
 insert into  "zz_strukturlinje"("typ","beskrivning") values ('ospec','ospecificerad strukturlinje');
-insert into  "zz_trptid"("typ","beskrivning") values (1,'Extremt kort transporttid');
-insert into  "zz_trptid"("typ","beskrivning") values (2,'Kort transporttid');
-insert into  "zz_trptid"("typ","beskrivning") values (3,'Genomsnittlig transporttid');
-insert into  "zz_trptid"("typ","beskrivning") values (4,'Lång transporttid');
-insert into  "zz_trptid"("typ","beskrivning") values (5,'Mycket lång transporttid');
-insert into  "zz_omattad_zon"("typ","beskrivning") values (0,'');
-insert into  "zz_omattad_zon"("typ","beskrivning") values (1,'Mäktig omättad zon');
+insert into  "zz_strukturlinje"("typ","beskrivning") values ('bergrygg','sammanhängande ryggformad struktur i berggrunden');
+insert into  "zz_strukturlinje"("typ","beskrivning") values ('djupfåra','sammanhängande djupfåra/tråg i berggrunden');
+insert into  "zz_trptid"("typ","beskrivning") values (1,'mkt kort tid (<1 d)');
+insert into  "zz_trptid"("typ","beskrivning") values (2,'kort tid (1-10 d)');
+insert into  "zz_trptid"("typ","beskrivning") values (3,'måttlig tid (10-100 d)');
+insert into  "zz_trptid"("typ","beskrivning") values (4,'lång tid (100-1000 d)');
+insert into  "zz_trptid"("typ","beskrivning") values (5,'mkt lång tid (1000-10 000 d)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (0,'mkt liten omättad zon (<1 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (1,'liten omättad zon (1-3 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (2,'måttlig omättad zon (3-6 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (3,'mäktig omättad zon (6-9 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (4,'mkt mäktig omättad zon (>9 m)');
 

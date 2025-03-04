@@ -3,7 +3,7 @@
 name=midv_tolkn
 qgisMinimumVersion=3.4.3
 description=Skapar en tolkningsdatabas och laddar dess lager till ditt qgis-projekt.
-version=Version 0.7.1
+version=Version 1.0.0
 author=Josef Källgården
 email=groundwatergis@gmail.com
 

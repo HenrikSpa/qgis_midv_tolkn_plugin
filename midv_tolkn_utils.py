@@ -207,13 +207,23 @@ class UpgradeDatabase():#in use
         conn.close()
 
     def to_sql(self, tname):
-        columns_list = self.curs.execute("""PRAGMA table_info(%s)"""%tname).fetchall()
-        columns_list = [col[1] for col in columns_list]
+        self.curs.execute(f"""SELECT * FROM {tname} LIMIT 1""")
+        columns_list = [col[0] for col in self.curs.description]
 
         if tname.startswith('zz_'):
             columns_list = [col for col in columns_list if col != 'pkuid']
 
-        column_names = ', '.join(columns_list)
+        try:
+            self.curs.execute(f"""SELECT * FROM a.{tname} LIMIT 1""")
+        except sqlite3.OperationalError as e:
+            if 'no such table' in str(e):
+                return
+            else:
+                raise
+
+        old_columns_list = [col[0] for col in self.curs.description]
+        column_names = ', '.join([c for c in columns_list if c in old_columns_list])
+        print(f"old_columns_list {old_columns_list}, columns_list {columns_list}, got names {column_names} ")
 
         try:
             sql = r"insert or ignore into %s (%s) select %s from a.%s" % (

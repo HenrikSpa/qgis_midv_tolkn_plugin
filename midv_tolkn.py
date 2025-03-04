@@ -36,6 +36,7 @@ try:
 except:
     compression = zipfile.ZIP_STORED
 
+from qgis.utils import spatialite_connect
 #add midv_tolkn plugin directory to pythonpath (needed here to allow importing modules from subfolders)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/tools'))
@@ -74,6 +75,11 @@ class midv_tolkn:
         self.actionUpgradeDB = QAction(QIcon(os.path.join(self.plugin_dir, 'icons', 'create_new.png')), "Uppgradera tolknings-databas", self.iface.mainWindow())
         self.actionUpgradeDB.setWhatsThis("Uppgradera en befintlig tolknings-databas till ny databas-struktur.")
         self.actionUpgradeDB.triggered.connect(lambda x: self.upgrade_db())
+
+        self.action_recalculate_dagvatten = QAction(QIcon(os.path.join(self.plugin_dir, 'icons', 'create_new.png')), "Beräkna dagvatten på nytt", self.iface.mainWindow())
+        self.action_recalculate_dagvatten.setWhatsThis("Beräknar kolumnen dagvatten_lPs i lagret tillromr.")
+        self.action_recalculate_dagvatten.triggered.connect(lambda x: self.recalculate_dagvatten())
+
 
         #self.actionabout = QAction(QIcon(":/plugins/midv_tolkn/icons/about.png"), "Information", self.iface.mainWindow())
         #self.actionabout.triggered.connect(lambda x: self.about)
@@ -119,6 +125,7 @@ class midv_tolkn:
         self.menu.addAction(self.actionVacuumDB)
         self.menu.addAction(self.actionZipDB)
         self.menu.addAction(self.actionUpgradeDB)
+        self.menu.addAction(self.action_recalculate_dagvatten)
         #self.menu.addAction(self.actionabout)
 
     def unload(self):    
@@ -156,7 +163,8 @@ class midv_tolkn:
         QApplication.restoreOverrideCursor()#now this long process is done and the cursor is back as normal
 
     def load_the_layers(self):
-        LoadLayers(qgis.utils.iface,self.db)
+        loadlayers = LoadLayers(qgis.utils.iface,self.db)
+        self.db = loadlayers.dbpath
 
     def new_db(self, set_locale=False):
         if not set_locale:
@@ -211,6 +219,27 @@ class midv_tolkn:
         if not newdbinstance.dbpath=='':
             self.db = newdbinstance.dbpath
         self.load_the_layers()
+
+    def recalculate_dagvatten(self):
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            utils.sql_alter_db(self.db, """update tillromr set dagvatten_lPs = NULL;""")
+            utils.sql_alter_db(self.db, '''UPDATE tillromr
+                                set "dagvatten_lPs"= (
+                                        SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100))*(gvbildn_mm/(365*24*3600))*(andel_t_mag_proc/100)
+                                        FROM
+                                        (SELECT ST_Intersection(tillromr.geometry, d.geometry) as inters, bortledning_proc
+                                        FROM dagvatten AS d
+                                        WHERE --ST_Intersects(tillromr.geometry, d.geometry) AND
+                                            d.ROWID IN (
+                                         SELECT rowid FROM SpatialIndex
+                                             WHERE f_table_name = 'dagvatten'
+                                             AND search_frame = tillromr.geometry)) AS foo
+                                        WHERE st_dimension(inters) = 2
+                       );''')
+        except:
+            QApplication.restoreOverrideCursor()
+            raise
         
     def vacuum_db(self):
         force_another_db = False
