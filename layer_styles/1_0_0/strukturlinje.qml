@@ -207,7 +207,7 @@
             <Option name="average_angle_length" type="QString" value="4"/>
             <Option name="average_angle_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="average_angle_unit" type="QString" value="MM"/>
-            <Option name="interval" type="QString" value="3"/>
+            <Option name="interval" type="QString" value="2.4"/>
             <Option name="interval_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="interval_unit" type="QString" value="MM"/>
             <Option name="offset" type="QString" value="0"/>
@@ -249,7 +249,7 @@
                 <Option name="offset_unit" type="QString" value="MM"/>
                 <Option name="outline_color" type="QString" value="35,35,35,255"/>
                 <Option name="outline_style" type="QString" value="solid"/>
-                <Option name="outline_width" type="QString" value="0.8"/>
+                <Option name="outline_width" type="QString" value="0.6"/>
                 <Option name="outline_width_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
                 <Option name="outline_width_unit" type="QString" value="MM"/>
                 <Option name="scale_method" type="QString" value="diameter"/>
@@ -320,7 +320,7 @@
             <Option name="average_angle_length" type="QString" value="4"/>
             <Option name="average_angle_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="average_angle_unit" type="QString" value="MM"/>
-            <Option name="interval" type="QString" value="3"/>
+            <Option name="interval" type="QString" value="2.4"/>
             <Option name="interval_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="interval_unit" type="QString" value="MM"/>
             <Option name="offset" type="QString" value="0"/>
@@ -362,7 +362,7 @@
                 <Option name="offset_unit" type="QString" value="MM"/>
                 <Option name="outline_color" type="QString" value="35,35,35,255"/>
                 <Option name="outline_style" type="QString" value="solid"/>
-                <Option name="outline_width" type="QString" value="0.8"/>
+                <Option name="outline_width" type="QString" value="0.6"/>
                 <Option name="outline_width_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
                 <Option name="outline_width_unit" type="QString" value="MM"/>
                 <Option name="scale_method" type="QString" value="diameter"/>
@@ -433,7 +433,7 @@
             <Option name="average_angle_length" type="QString" value="4"/>
             <Option name="average_angle_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="average_angle_unit" type="QString" value="MM"/>
-            <Option name="interval" type="QString" value="3"/>
+            <Option name="interval" type="QString" value="2.4"/>
             <Option name="interval_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="interval_unit" type="QString" value="MM"/>
             <Option name="offset" type="QString" value="0"/>
@@ -499,7 +499,7 @@
             <Option name="average_angle_length" type="QString" value="4"/>
             <Option name="average_angle_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="average_angle_unit" type="QString" value="MM"/>
-            <Option name="interval" type="QString" value="3"/>
+            <Option name="interval" type="QString" value="2.4"/>
             <Option name="interval_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="interval_unit" type="QString" value="MM"/>
             <Option name="offset" type="QString" value="0"/>
@@ -612,7 +612,7 @@
             <Option name="average_angle_length" type="QString" value="4"/>
             <Option name="average_angle_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="average_angle_unit" type="QString" value="MM"/>
-            <Option name="interval" type="QString" value="3"/>
+            <Option name="interval" type="QString" value="2.4"/>
             <Option name="interval_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="interval_unit" type="QString" value="MM"/>
             <Option name="offset" type="QString" value="0"/>
@@ -678,7 +678,7 @@
             <Option name="average_angle_length" type="QString" value="4"/>
             <Option name="average_angle_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="average_angle_unit" type="QString" value="MM"/>
-            <Option name="interval" type="QString" value="3"/>
+            <Option name="interval" type="QString" value="2.4"/>
             <Option name="interval_map_unit_scale" type="QString" value="3x:0,0,0,0,0,0"/>
             <Option name="interval_unit" type="QString" value="MM"/>
             <Option name="offset" type="QString" value="0"/>
@@ -1226,8 +1226,14 @@
           <Option type="Map">
             <Option name="AllowMulti" type="bool" value="false"/>
             <Option name="AllowNull" type="bool" value="true"/>
+            <Option name="Description" type="QString" value=""/>
+            <Option name="FilterExpression" type="QString" value=""/>
             <Option name="Key" type="QString" value="typ"/>
             <Option name="Layer" type="QString" value="zz_strukturlinje_08b5e715_9a2e_45af_8aa4_8c5466aecf76"/>
+            <Option name="LayerName" type="QString" value="zz_strukturlinje"/>
+            <Option name="LayerProviderName" type="QString" value="spatialite"/>
+            <Option name="LayerSource" type="QString" value="dbname=&quot;/mnt/server/M_mv/projekt/2605 datahantering/ARBETSDATA/midv_tolkn plugin/ver1.0_dev/midv_tolkndb_1.0.0_dev.sqlite&quot; table=&quot;zz_strukturlinje&quot;"/>
+            <Option name="NofColumns" type="int" value="1"/>
             <Option name="OrderByValue" type="bool" value="false"/>
             <Option name="UseCompleter" type="bool" value="false"/>
             <Option name="Value" type="QString" value="beskrivning"/>
@@ -1238,21 +1244,30 @@
     <field name="ursprung" configurationFlags="NoFlag">
       <editWidget type="TextEdit">
         <config>
-          <Option/>
+          <Option type="Map">
+            <Option name="IsMultiline" type="bool" value="false"/>
+            <Option name="UseHtml" type="bool" value="false"/>
+          </Option>
         </config>
       </editWidget>
     </field>
     <field name="kommentar" configurationFlags="NoFlag">
       <editWidget type="TextEdit">
         <config>
-          <Option/>
+          <Option type="Map">
+            <Option name="IsMultiline" type="bool" value="true"/>
+            <Option name="UseHtml" type="bool" value="false"/>
+          </Option>
         </config>
       </editWidget>
     </field>
     <field name="updated" configurationFlags="NoFlag">
       <editWidget type="TextEdit">
         <config>
-          <Option/>
+          <Option type="Map">
+            <Option name="IsMultiline" type="bool" value="false"/>
+            <Option name="UseHtml" type="bool" value="false"/>
+          </Option>
         </config>
       </editWidget>
     </field>
@@ -1345,7 +1360,7 @@ def my_form_open(dialog, layer, feature):
     <field name="namn" editable="1"/>
     <field name="pkuid" editable="1"/>
     <field name="typ" editable="1"/>
-    <field name="updated" editable="1"/>
+    <field name="updated" editable="0"/>
     <field name="ursprung" editable="1"/>
   </editable>
   <labelOnTop>

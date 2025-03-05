@@ -2124,21 +2124,30 @@
     <field name="ursprung" configurationFlags="NoFlag">
       <editWidget type="TextEdit">
         <config>
-          <Option/>
+          <Option type="Map">
+            <Option name="IsMultiline" type="bool" value="false"/>
+            <Option name="UseHtml" type="bool" value="false"/>
+          </Option>
         </config>
       </editWidget>
     </field>
     <field name="kommentar" configurationFlags="NoFlag">
       <editWidget type="TextEdit">
         <config>
-          <Option/>
+          <Option type="Map">
+            <Option name="IsMultiline" type="bool" value="true"/>
+            <Option name="UseHtml" type="bool" value="false"/>
+          </Option>
         </config>
       </editWidget>
     </field>
     <field name="updated" configurationFlags="NoFlag">
       <editWidget type="TextEdit">
         <config>
-          <Option/>
+          <Option type="Map">
+            <Option name="IsMultiline" type="bool" value="false"/>
+            <Option name="UseHtml" type="bool" value="false"/>
+          </Option>
         </config>
       </editWidget>
     </field>
@@ -2231,7 +2240,7 @@ def my_form_open(dialog, layer, feature):
     <field name="namn" editable="1"/>
     <field name="pkuid" editable="1"/>
     <field name="typ" editable="1"/>
-    <field name="updated" editable="1"/>
+    <field name="updated" editable="0"/>
     <field name="ursprung" editable="1"/>
   </editable>
   <labelOnTop>
