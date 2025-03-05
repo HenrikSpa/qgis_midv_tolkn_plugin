@@ -8,6 +8,7 @@ insert into  "zz_gvflode"("typ","beskrivning") values ('ospec','ospecificierat g
 insert into  "zz_gvflode"("typ","beskrivning") values ('ytvatten','i ytvatten');
 insert into  "zz_gvdel"("typ","beskrivning") values ('fast','fast grundvattendelare');
 insert into  "zz_gvdel"("typ","beskrivning") values ('rörlig','rörlig grundvattendelare');
+insert into  "zz_gvdel"("typ","beskrivning") values ('stalp','stalp');
 insert into  "zz_gvdel"("typ","beskrivning") values ('annan gräns','annan gräns');
 insert into  "zz_gvmag"("typ","beskrivning") values ('huvudmag','huvudmagasinet');
 insert into  "zz_gvmag"("typ","beskrivning") values ('centralt','central del av huvudmagasinet');
@@ -22,8 +23,8 @@ insert into  "zz_tillromr"("typ","beskrivning") values ('b','typ b - hela gvbild
 insert into  "zz_tillromr"("typ","beskrivning") values ('c','typ c - delar av gvbildn når magasinet');
 insert into  "zz_strukturlinje"("typ","beskrivning") values ('spröd','spröd deformationszon');
 insert into  "zz_strukturlinje"("typ","beskrivning") values ('plastisk','plastisk deformtionszon');
-insert into  "zz_strukturlinje"("typ","beskrivning") values ('strukturell','BYT TILL ANNAN. DENNA SKA TAS BORT. strukturell formlinje');
-insert into  "zz_strukturlinje"("typ","beskrivning") values ('kontakt','BYT TILL ANNAN. DENNA SKA TAS BORT. litologisk kontakt');
+insert into  "zz_strukturlinje"("typ","beskrivning") values ('strukturell','strukturell formlinje (BYT TILL ANNAN. DENNA SKA TAS BORT)');
+insert into  "zz_strukturlinje"("typ","beskrivning") values ('kontakt','litologisk kontakt ((BYT TILL ANNAN. DENNA SKA TAS BORT)');
 insert into  "zz_strukturlinje"("typ","beskrivning") values ('ospec','ospecificerad strukturlinje');
 insert into  "zz_strukturlinje"("typ","beskrivning") values ('bergrygg','sammanhängande ryggformad struktur i berggrunden');
 insert into  "zz_strukturlinje"("typ","beskrivning") values ('djupfåra','sammanhängande djupfåra/tråg i berggrunden');
