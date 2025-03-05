@@ -31,20 +31,26 @@ from qgis.utils import spatialite_connect
 from . import midv_tolkn_utils as utils
 
 
-class newdb():
-
-    def __init__(self, verno, user_select_CRS=True, EPSG_code='4326', set_locale=False,db_path=''):
+class NewDb():
+    def __init__(self, iface, verno, user_select_CRS=True, EPSG_code='4326', set_locale=False,db_path=''):
         self.dbpath = db_path
-        self.create_new_db(verno,user_select_CRS,EPSG_code, set_locale)  #CreateNewDB(verno)
+        self.iface = iface
+        self.create_new_db(verno,user_select_CRS,EPSG_code, set_locale)
         
-    def create_new_db(self, verno, user_select_CRS=True, EPSG_code='4326', set_locale=False, ):  #CreateNewDB(self, verno):
+    def create_new_db(self, verno, user_select_CRS=True, EPSG_code='4326', set_locale=False, ):
         """Open a new DataBase (create an empty one if file doesn't exists) and set as default DB"""
         if user_select_CRS:
-            EPSGID=str(self.ask_for_CRS(set_locale)[0])
+            epsgid = self.ask_for_CRS(set_locale)
+            if not epsgid:
+                self.iface.messageBar().pushMessage("Information","User aborted", 1,duration=5)
+                return
         else:
-            EPSGID=EPSG_code
+            epsgid=EPSG_code
+
+        epsgid = str(epsgid)
+
         QApplication.setOverrideCursor(Qt.WaitCursor)
-        if EPSGID=='0' or not EPSGID:
+        if epsgid=='0' or not epsgid:
             utils.pop_up_info("Cancelling...")
         else: # If a CRS is selectd, go on and create the database
             #path and name of new db
@@ -95,7 +101,7 @@ class newdb():
                                 continue
                             if line.startswith("#"):
                                 continue
-                            for replace_word, replace_with in [('CHANGETORELEVANTEPSGID', str(EPSGID)),
+                            for replace_word, replace_with in [('CHANGETORELEVANTEPSGID', str(epsgid)),
                                                                ('CHANGETOPLUGINVERSION', str(verno)),
                                                                ('CHANGETOQGISVERSION',str(qgisverno)),
                                                                ('CHANGETOSPLITEVERSION', str(versionstext[0][0]))]:
@@ -107,10 +113,10 @@ class newdb():
                     except:
                         utils.pop_up_info('Failed to create DB!')
                 try:#spatial_ref_sys_aux not implemented until spatialite 4.3
-                    self.cur.execute(r"""delete from spatial_ref_sys_aux where srid NOT IN ('%s', '4326')""" % EPSGID)
+                    self.cur.execute(r"""delete from spatial_ref_sys_aux where srid NOT IN ('%s', '4326')""" % epsgid)
                 except:
                     pass
-                self.cur.execute(r"""delete from spatial_ref_sys where srid NOT IN ('%s', '4326')""" % EPSGID)
+                self.cur.execute(r"""delete from spatial_ref_sys where srid NOT IN ('%s', '4326')""" % epsgid)
 
                 self.insert_datadomains()
 
@@ -138,8 +144,11 @@ class newdb():
             default_crs = 3006
         else:
             default_crs = 4326
-        EPSGID = QInputDialog.getInt(None, "Select CRS", "Give EPSG-ID (integer) corresponding to\nthe CRS you want to use in the database:",default_crs)
-        return EPSGID
+        EPSGID, ok = QInputDialog.getInt(None, "Select CRS", "Give EPSG-ID (integer) corresponding to\nthe CRS you want to use in the database:",default_crs)
+        if not ok:
+            return None
+        else:
+            return EPSGID
 
     def insert_datadomains(self):
         filenamestring = 'insert_datadomain_sv.sql'

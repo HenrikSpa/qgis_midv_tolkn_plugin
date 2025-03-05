@@ -71,10 +71,8 @@ class LoadLayers():
         else:
             position_index = 0
 
-        MyGroup = qgis.core.QgsLayerTreeGroup(name=self.group_name, checked=True)
-        self.root.insertChildNode(position_index, MyGroup)
-        comment_group = MyGroup.addGroup('kommentarer')
-        MySubGroup = MyGroup.addGroup('värdeförråd')
+        main_group = qgis.core.QgsLayerTreeGroup(name=self.group_name, checked=True)
+        self.root.insertChildNode(position_index, main_group)
 
         uri = QgsDataSourceUri()
         uri.setDatabase(self.dbpath)
@@ -103,12 +101,24 @@ class LoadLayers():
             except:
                 pass
 
+        comment_created = False
         for tablename in defs.comment_layers():
             #uristring= 'dbname="' + self.dbpath + '" table="' + tablename + '"'
             #layer = QgsVectorLayer(uristring,tablename, 'spatialite')
             uri.setDataSource('', tablename, 'geometry')
             layer = QgsVectorLayer(uri.uri(), tablename, 'spatialite')
-            layer_list.append(layer)
+
+            if layer.isValid():
+                layer_list.append(layer)
+                comment_created = True
+            else:
+                qgis.utils.iface.messageBar().pushMessage("Warning","Table %s was not valid. DB probably created w old plugin version."%str(tablename), 1,duration=5)
+
+        if comment_created:
+            comment_group = main_group.addGroup('kommentarer')
+        else:
+            comment_group = None
+            zz_group = main_group.addGroup('värdeförråd')
 
         #then load all spatial layers
         layers = default_layers()  # ordered dict with layer-name:(zz_layer-name,layer_name_for_map_legend)
@@ -131,11 +141,11 @@ class LoadLayers():
         for layer in layer_list:
             QgsProject.instance().addMapLayers([layer],False)
             if layer.name() in d_domain_tables:
-                MySubGroup.insertLayer(0,layer)
+                zz_group.insertLayer(0,layer)
             elif layer.name() in defs.comment_layers():
                 comment_group.insertLayer(0,layer)
             else:
-                MyGroup.insertLayer(0,layer)
+                main_group.insertLayer(0,layer)
 
             layer_dict[layer.name()] = layer
 
@@ -152,14 +162,17 @@ class LoadLayers():
 
             if layer.name() in defs.unchecked_layers():
                 #QgsProject.instance().layerTreeRoot().findLayer(layer.id()).setItemVisibilityChecked(False)
-                for _group in (MyGroup, comment_group):
+                for _group in (main_group, comment_group):
+                    if _group:
+                        continue
                     _layer = _group.findLayer(layer.id())
                     if _layer:
                         _layer.setItemVisibilityChecked(False)
                         break
 
-        MySubGroup.setExpanded(False)
-        comment_group.setExpanded(False)
+        zz_group.setExpanded(False)
+        if comment_group:
+            comment_group.setExpanded(False)
         
         # fix value relations
         for lyr in list(layers.keys()):

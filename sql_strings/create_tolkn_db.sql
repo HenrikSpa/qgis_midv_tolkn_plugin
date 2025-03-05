@@ -44,6 +44,18 @@ SELECT AddGeometryColumn("kommentarer_punkt", "geometry", CHANGETORELEVANTEPSGID
 SELECT AddGeometryColumn("kommentarer_linje", "geometry", CHANGETORELEVANTEPSGID, "MULTILINESTRING", "XY", 0);
 SELECT AddGeometryColumn("kommentarer_yta", "geometry", CHANGETORELEVANTEPSGID, "MULTIPOLYGON", "XY", 0);
 SELECT AddGeometryColumn("dagvatten", "geometry", CHANGETORELEVANTEPSGID, "MULTIPOLYGON", "XY", 0);
-create view "tillromr_summaflode" as select "namn", sum("flode_lPs") as summa_flode_lPs from "tillromr" group by "namn";
-
+CREATE VIEW "tillromr_summaflode" as select "namn", sum("flode_lPs") as summa_flode_lPs from "tillromr" group by "namn";
 --CREATE VIEW profilbilder AS SELECT a.rowid AS rowid, a.name, b.geometry AS geometry FROM profil AS a JOIN profillinje AS b ON a.profillinje = b.pkuid;
+SELECT CreateSpatialIndex("gvmag", "geometry");
+SELECT CreateSpatialIndex("gvflode", "geometry");
+SELECT CreateSpatialIndex("gvdel", "geometry");
+SELECT CreateSpatialIndex("tillromr", "geometry");
+SELECT CreateSpatialIndex("sprickzon", "geometry");
+SELECT CreateSpatialIndex("strukturlinje", "geometry");
+SELECT CreateSpatialIndex("trptid", "geometry");
+SELECT CreateSpatialIndex("omattad_zon", "geometry");
+SELECT CreateSpatialIndex("profillinje", "geometry");
+SELECT CreateSpatialIndex("kommentarer_punkt", "geometry");
+SELECT CreateSpatialIndex("kommentarer_linje", "geometry");
+SELECT CreateSpatialIndex("kommentarer_yta", "geometry");
+SELECT CreateSpatialIndex("dagvatten", "geometry");

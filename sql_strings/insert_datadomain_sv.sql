@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*- This line is just for your information, the python plugin will not use the first line
 insert into  "zz_gvflode"("typ","beskrivning") values ('huvudmag','i huvudmagasinet');
-insert into  "zz_gvflode"("typ","beskrivning") values ('jordlager','i magasin i jordlager (inte huvudmagasinet)');
+insert into  "zz_gvflode"("typ","beskrivning") values ('jordlager','i jordlager');
 insert into  "zz_gvflode"("typ","beskrivning") values ('överlagrande magasin','i överlagrande magasin');
 insert into  "zz_gvflode"("typ","beskrivning") values ('ytliga jordlager','i ytliga jordlager');
 insert into  "zz_gvflode"("typ","beskrivning") values ('berg','i berggrunden');
@@ -10,7 +10,7 @@ insert into  "zz_gvdel"("typ","beskrivning") values ('fast','fast grundvattendel
 insert into  "zz_gvdel"("typ","beskrivning") values ('rörlig','rörlig grundvattendelare');
 insert into  "zz_gvdel"("typ","beskrivning") values ('stalp','stalp');
 insert into  "zz_gvdel"("typ","beskrivning") values ('annan gräns','annan gräns');
-insert into  "zz_gvmag"("typ","beskrivning") values ('huvudmag','huvudmagasinet');
+insert into  "zz_gvmag"("typ","beskrivning") values ('huvudmag','huvudmagasin');
 insert into  "zz_gvmag"("typ","beskrivning") values ('centralt','central del av huvudmagasinet');
 insert into  "zz_gvmag"("typ","beskrivning") values ('perifert','perifer del av huvudmagasinet');
 insert into  "zz_gvmag"("typ","beskrivning") values ('jordlager','magasin i jordlager');
@@ -33,9 +33,11 @@ insert into  "zz_trptid"("typ","beskrivning") values (2,'kort tid (1-10 d)');
 insert into  "zz_trptid"("typ","beskrivning") values (3,'måttlig tid (10-100 d)');
 insert into  "zz_trptid"("typ","beskrivning") values (4,'lång tid (100-1000 d)');
 insert into  "zz_trptid"("typ","beskrivning") values (5,'mkt lång tid (1000-10 000 d)');
-insert into  "zz_omattad_zon"("typ","beskrivning") values (0,'mkt liten omättad zon (<1 m)');
-insert into  "zz_omattad_zon"("typ","beskrivning") values (1,'liten omättad zon (1-3 m)');
-insert into  "zz_omattad_zon"("typ","beskrivning") values (2,'måttlig omättad zon (3-6 m)');
-insert into  "zz_omattad_zon"("typ","beskrivning") values (3,'mäktig omättad zon (6-9 m)');
-insert into  "zz_omattad_zon"("typ","beskrivning") values (4,'mkt mäktig omättad zon (>9 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (0,'ospecificerad omättad zon');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (1,'mäktig omättad zon');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (2,'mkt liten omättad zon (<1 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (3,'liten omättad zon (1-3 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (4,'måttlig omättad zon (3-6 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (5,'mäktig omättad zon (6-9 m)');
+insert into  "zz_omattad_zon"("typ","beskrivning") values (6,'mkt mäktig omättad zon (>9 m)');
 

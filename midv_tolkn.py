@@ -173,8 +173,8 @@ class midv_tolkn:
         filenamepath = os.path.join(os.path.dirname(__file__),"metadata.txt" )
         iniText = QSettings(filenamepath , QSettings.IniFormat)
         verno = str(iniText.value('version')) 
-        from .create_tolkn_db import newdb
-        newdbinstance = newdb(verno, set_locale=set_locale)
+        from .create_tolkn_db import NewDb
+        newdbinstance = NewDb(self.iface, verno, set_locale=set_locale)
         if not newdbinstance.dbpath=='':
             self.db = newdbinstance.dbpath
 
@@ -207,8 +207,8 @@ class midv_tolkn:
         verno = str(iniText.value('version'))
 
         #now create database of the updated design
-        from .create_tolkn_db import newdb
-        newdbinstance = newdb(verno, user_select_CRS=False, EPSG_code = EPSG[1][0][0], set_locale=set_locale)
+        from .create_tolkn_db import NewDb
+        newdbinstance = NewDb(self.iface, verno, user_select_CRS=False, EPSG_code = EPSG[1][0][0], set_locale=set_locale)
         if not newdbinstance.dbpath:
             QApplication.restoreOverrideCursor()
             return None
@@ -223,23 +223,19 @@ class midv_tolkn:
     def recalculate_dagvatten(self):
         QApplication.setOverrideCursor(Qt.WaitCursor)
         try:
-            utils.sql_alter_db(self.db, """update tillromr set dagvatten_lPs = NULL;""")
-            utils.sql_alter_db(self.db, '''UPDATE tillromr
-                                set "dagvatten_lPs"= (
-                                        SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100))*(gvbildn_mm/(365*24*3600))*(andel_t_mag_proc/100)
-                                        FROM
-                                        (SELECT ST_Intersection(tillromr.geometry, d.geometry) as inters, bortledning_proc
-                                        FROM dagvatten AS d
-                                        WHERE --ST_Intersects(tillromr.geometry, d.geometry) AND
-                                            d.ROWID IN (
-                                         SELECT rowid FROM SpatialIndex
-                                             WHERE f_table_name = 'dagvatten'
-                                             AND search_frame = tillromr.geometry)) AS foo
-                                        WHERE st_dimension(inters) = 2
-                       );''')
+            utils.sql_alter_db(self.db, """UPDATE tillromr SET dagvatten_lPs = NULL;""")
+            utils.sql_alter_db(self.db, '''UPDATE tillromr SET "dagvatten_lPs" = (SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100)*(gvbildn_mm/(365*86400))*(andel_t_mag_proc/100)) 
+                                                    FROM (SELECT ST_Intersection(NEW.geometry, d.geometry) as inters, bortledning_proc 
+                                                          FROM dagvatten AS d 
+                                                          WHERE CASE WHEN NOT EXISTS (SELECT 1 FROM SpatialIndex WHERE f_table_name = 'dagvatten' LIMIT 1) THEN ST_Intersects(NEW.geometry, d.geometry)
+                                                                    ELSE d.ROWID IN (SELECT rowid FROM SpatialIndex WHERE f_table_name = 'dagvatten' AND search_frame = NEW.geometry) END
+                                                    ) AS foo 
+                                                     WHERE st_dimension(foo.inters) = 2);''')
         except:
             QApplication.restoreOverrideCursor()
             raise
+        else:
+            QApplication.restoreOverrideCursor()
         
     def vacuum_db(self):
         force_another_db = False

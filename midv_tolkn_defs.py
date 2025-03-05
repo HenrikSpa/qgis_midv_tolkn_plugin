@@ -22,15 +22,15 @@ import collections
 
 def default_layers(): # dictionary of layers with (some) corresponding data domains and relevant layer names
     d = collections.OrderedDict()
-    d['sprickzon']=(None,'sprickzoner m.m.')
-    d['strukturlinje']=('zz_strukturlinje','strukturlinjer m.m.')
     d['gvmag']=('zz_gvmag','grundvattenmagasin')
-    d['gvflode']=('zz_gvflode','grundvattenflöde')
-    d['gvdel']=('zz_gvdel','grundvattendelare och andra gränser')
+    d['sprickzon']=(None,'sprickzoner m.m.')
+    d['omattad_zon']=('zz_omattad_zon','omättad zon')
     d['tillromr']=('zz_tillromr','tillrinningsområden')
     d['trptid']=('zz_trptid','transporttid')
-    d['omattad_zon']=('zz_omattad_zon','omättad zon')
     d['dagvatten']=(None,'dagvattenytor')
+    d['strukturlinje']=('zz_strukturlinje','strukturlinjer m.m.')
+    d['gvdel']=('zz_gvdel','grundvattendelare och andra gränser')
+    d['gvflode']=('zz_gvflode','grundvattenflöde')
     d['profillinje']=(None, 'profillinje')
     return d
 
