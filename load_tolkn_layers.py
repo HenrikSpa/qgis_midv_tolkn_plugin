@@ -118,7 +118,7 @@ class LoadLayers():
             comment_group = main_group.addGroup('kommentarer')
         else:
             comment_group = None
-            zz_group = main_group.addGroup('värdeförråd')
+        zz_group = main_group.addGroup('värdeförråd')
 
         #then load all spatial layers
         layers = default_layers()  # ordered dict with layer-name:(zz_layer-name,layer_name_for_map_legend)
