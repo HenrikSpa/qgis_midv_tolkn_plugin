@@ -163,7 +163,7 @@ class LoadLayers():
             if layer.name() in defs.unchecked_layers():
                 #QgsProject.instance().layerTreeRoot().findLayer(layer.id()).setItemVisibilityChecked(False)
                 for _group in (main_group, comment_group):
-                    if _group:
+                    if not _group:
                         continue
                     _layer = _group.findLayer(layer.id())
                     if _layer:
