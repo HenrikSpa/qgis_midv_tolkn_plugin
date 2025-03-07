@@ -85,6 +85,10 @@ class LoadLayers():
         conn_ok, dd_tables = utils.sql_load_fr_db("select name from sqlite_master where name like 'zz_%'", self.dbpath)
         if not conn_ok:
             return
+        #tstring = """DB error!!"""%(sql)
+        existing_tables = utils.sql_load_fr_db("""SELECT tbl_name FROM sqlite_master WHERE (type = 'table' OR type = 'view')""", self.dbpath)[1]
+        existing_tables = [x[0] for x in existing_tables]
+
         d_domain_tables = [str(dd_table[0]) for dd_table in dd_tables]
         for tablename in d_domain_tables:
             uristring= 'dbname="' + self.dbpath + '" table="' + tablename + '"'
@@ -103,6 +107,8 @@ class LoadLayers():
 
         comment_created = False
         for tablename in defs.comment_layers():
+            if not tablename in existing_tables:
+                continue
             #uristring= 'dbname="' + self.dbpath + '" table="' + tablename + '"'
             #layer = QgsVectorLayer(uristring,tablename, 'spatialite')
             uri.setDataSource('', tablename, 'geometry')
@@ -123,7 +129,11 @@ class LoadLayers():
         #then load all spatial layers
         layers = default_layers()  # ordered dict with layer-name:(zz_layer-name,layer_name_for_map_legend)
         for tablename, tup in list(layers.items()):
-            try:
+            if tablename not in existing_tables:
+                qgis.utils.iface.messageBar().pushMessage("Information",
+                                                          "Table %s not found in db. DB probably created w old plugin version. And upgrade is suggested." % str(
+                                                              tablename), 1, duration=5)
+            else:
                 uri.setDataSource('',tablename,'geometry')
                 layer = QgsVectorLayer(uri.uri(), tablename, 'spatialite') # Adding the layer as 'spatialite' instead of ogr vector layer is preferred
                 if layer.isValid():
@@ -131,8 +141,7 @@ class LoadLayers():
                     layer_name_list.append(layer.name())
                 else:
                     qgis.utils.iface.messageBar().pushMessage("Warning","Table %s was not valid. DB probably created w old plugin version."%str(tablename), 1,duration=5)
-            except:
-                qgis.utils.iface.messageBar().pushMessage("Warning","Table %s not found in db. DB probably created w old plugin version."%str(tablename), 1,duration=5)
+
         #now loop over all the layers and set styles etc
 
         db_version = self.get_db_version()
