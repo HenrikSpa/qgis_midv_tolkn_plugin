@@ -26,7 +26,7 @@ CREATE TABLE "strukturlinje"(pkuid integer primary key autoincrement,"namn" text
 CREATE TABLE "trptid"(pkuid integer primary key autoincrement,"typ" integer,"ursprung" text,"kommentar" text, "updated" text, FOREIGN KEY(typ) REFERENCES zz_trptid(typ));
 CREATE TABLE "omattad_zon"(pkuid integer primary key autoincrement,"typ" integer,"ursprung" text,"kommentar" text, "updated" text, FOREIGN KEY(typ) REFERENCES zz_omattad_zon(typ));
 CREATE TABLE "profillinje"(pkuid integer primary key autoincrement, "namn" text not null, "projekt" integer not null, "rapportnamn" text, "kommentar" text, "geom_updated" text, FOREIGN KEY(projekt) REFERENCES zz_projekt(pkuid), UNIQUE (projekt, namn));
-CREATE TABLE "dagvatten"(pkuid integer primary key autoincrement,"typ" text,"markanv" text,"bortledning_proc" double, "ursprung" text, "kommentar" text);
+CREATE TABLE "dagvyta"(pkuid integer primary key autoincrement,"typ" text,"markanv" text,"bortledning_proc" double, "ursprung" text, "kommentar" text);
 CREATE TABLE "kommentarer_punkt" (pkuid integer primary key autoincrement,"typ" text, 'kommentar' text, "updated" text);
 CREATE TABLE "kommentarer_linje" (pkuid integer primary key autoincrement,"typ" text, 'kommentar' text, "updated" text);
 CREATE TABLE "kommentarer_yta" (pkuid integer primary key autoincrement,"typ" text, 'kommentar' text, "updated" text);
@@ -43,7 +43,7 @@ SELECT AddGeometryColumn("profillinje", "geometry", CHANGETORELEVANTEPSGID, "LIN
 SELECT AddGeometryColumn("kommentarer_punkt", "geometry", CHANGETORELEVANTEPSGID, "MULTIPOINT", "XY", 0);
 SELECT AddGeometryColumn("kommentarer_linje", "geometry", CHANGETORELEVANTEPSGID, "MULTILINESTRING", "XY", 0);
 SELECT AddGeometryColumn("kommentarer_yta", "geometry", CHANGETORELEVANTEPSGID, "MULTIPOLYGON", "XY", 0);
-SELECT AddGeometryColumn("dagvatten", "geometry", CHANGETORELEVANTEPSGID, "MULTIPOLYGON", "XY", 0);
+SELECT AddGeometryColumn("dagvyta", "geometry", CHANGETORELEVANTEPSGID, "MULTIPOLYGON", "XY", 0);
 CREATE VIEW "tillromr_summaflode" as select "namn", sum("flode_lPs") as summa_flode_lPs from "tillromr" group by "namn";
 --CREATE VIEW profilbilder AS SELECT a.rowid AS rowid, a.name, b.geometry AS geometry FROM profil AS a JOIN profillinje AS b ON a.profillinje = b.pkuid;
 SELECT CreateSpatialIndex("gvmag", "geometry");
@@ -58,4 +58,4 @@ SELECT CreateSpatialIndex("profillinje", "geometry");
 SELECT CreateSpatialIndex("kommentarer_punkt", "geometry");
 SELECT CreateSpatialIndex("kommentarer_linje", "geometry");
 SELECT CreateSpatialIndex("kommentarer_yta", "geometry");
-SELECT CreateSpatialIndex("dagvatten", "geometry");
+SELECT CreateSpatialIndex("dagvyta", "geometry");

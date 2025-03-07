@@ -226,9 +226,9 @@ class midv_tolkn:
             utils.sql_alter_db(self.db, """UPDATE tillromr SET dagvatten_lPs = NULL;""")
             utils.sql_alter_db(self.db, '''UPDATE tillromr SET "dagvatten_lPs" = (SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100)*(gvbildn_mm/(365*86400))*(andel_t_mag_proc/100)) 
                                                     FROM (SELECT ST_Intersection(NEW.geometry, d.geometry) as inters, bortledning_proc 
-                                                          FROM dagvatten AS d 
-                                                          WHERE CASE WHEN NOT EXISTS (SELECT 1 FROM SpatialIndex WHERE f_table_name = 'dagvatten' LIMIT 1) THEN ST_Intersects(NEW.geometry, d.geometry)
-                                                                    ELSE d.ROWID IN (SELECT rowid FROM SpatialIndex WHERE f_table_name = 'dagvatten' AND search_frame = NEW.geometry) END
+                                                          FROM dagvyta AS d 
+                                                          WHERE CASE WHEN NOT EXISTS (SELECT 1 FROM SpatialIndex WHERE f_table_name = 'dagvyta' LIMIT 1) THEN ST_Intersects(NEW.geometry, d.geometry)
+                                                                    ELSE d.ROWID IN (SELECT rowid FROM SpatialIndex WHERE f_table_name = 'dagvyta' AND search_frame = NEW.geometry) END
                                                     ) AS foo 
                                                      WHERE st_dimension(foo.inters) = 2);''')
         except:
