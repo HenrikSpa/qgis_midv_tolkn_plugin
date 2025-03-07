@@ -44,7 +44,6 @@ class LoadLayers():
         self.dbpath = db
         self.group_name = group_name
         self.iface = iface
-        QApplication.setOverrideCursor(Qt.WaitCursor)
         if db:
             use_current_db = utils.Askuser("YesNo","""Do you want to load layers from %s?"""%db,'Which database?')
             if use_current_db.result == 0:
@@ -56,6 +55,7 @@ class LoadLayers():
         if not self.dbpath:
             QApplication.restoreOverrideCursor()
         else:
+            QApplication.setOverrideCursor(Qt.WaitCursor)
             self.root = QgsProject.instance().layerTreeRoot()
             #self.remove_relations()
             self.remove_layers()

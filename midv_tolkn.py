@@ -221,14 +221,22 @@ class midv_tolkn:
         self.load_the_layers()
 
     def recalculate_dagvatten(self):
+        if not self.db:
+            db, ok = QFileDialog.getOpenFileName(None,
+                                                  'Ange tolknings-db',
+                                                  '', "Spatialite (*.sqlite)")
+            if not ok:
+                return
+        else:
+            db = self.db
         QApplication.setOverrideCursor(Qt.WaitCursor)
         try:
-            utils.sql_alter_db(self.db, """UPDATE tillromr SET dagvatten_lPs = NULL;""")
-            utils.sql_alter_db(self.db, '''UPDATE tillromr SET "dagvatten_lPs" = (SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100)*(gvbildn_mm/(365*86400))*(andel_t_mag_proc/100)) 
-                                                    FROM (SELECT ST_Intersection(NEW.geometry, d.geometry) as inters, bortledning_proc 
+            utils.sql_alter_db(db, """UPDATE tillromr SET dagvatten_lPs = NULL;""")
+            utils.sql_alter_db(db, '''UPDATE tillromr SET "dagvatten_lPs" = (SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100)*(tillromr.gvbildn_mm/(365*86400))*(tillromr.andel_t_mag_proc/100)) 
+                                                    FROM (SELECT ST_Intersection(tillromr.geometry, d.geometry) as inters, bortledning_proc 
                                                           FROM dagvyta AS d 
-                                                          WHERE CASE WHEN NOT EXISTS (SELECT 1 FROM SpatialIndex WHERE f_table_name = 'dagvyta' LIMIT 1) THEN ST_Intersects(NEW.geometry, d.geometry)
-                                                                    ELSE d.ROWID IN (SELECT rowid FROM SpatialIndex WHERE f_table_name = 'dagvyta' AND search_frame = NEW.geometry) END
+                                                          WHERE CASE WHEN NOT EXISTS (SELECT 1 FROM SpatialIndex WHERE f_table_name = 'dagvyta' LIMIT 1) THEN ST_Intersects(tillromr.geometry, d.geometry)
+                                                                    ELSE d.ROWID IN (SELECT rowid FROM SpatialIndex WHERE f_table_name = 'dagvyta' AND search_frame = tillromr.geometry) END
                                                     ) AS foo 
                                                      WHERE st_dimension(foo.inters) = 2);''')
         except:
@@ -236,6 +244,8 @@ class midv_tolkn:
             raise
         else:
             QApplication.restoreOverrideCursor()
+            self.iface.messageBar().pushSuccess("Information",
+                                                "Dagvatten calculated in table tillromr")
         
     def vacuum_db(self):
         force_another_db = False
@@ -286,5 +296,5 @@ class midv_tolkn:
             zf.close()
             connection.conn.rollback()
             connection.closedb()
-            self.iface.messageBar().pushMessage("Information","Database backup was written to " + bkupname, 1,duration=15)
+            self.iface.messageBar().pushSuccess("Information", "Database backup was written to " + bkupname)
             QApplication.restoreOverrideCursor()
