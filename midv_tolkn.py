@@ -76,9 +76,9 @@ class midv_tolkn:
         self.actionUpgradeDB.setWhatsThis("Uppgradera en befintlig tolknings-databas till ny databas-struktur.")
         self.actionUpgradeDB.triggered.connect(lambda x: self.upgrade_db())
 
-        self.action_recalculate_dagvatten = QAction(QIcon(os.path.join(self.plugin_dir, 'icons', 'create_new.png')), "Beräkna dagvatten på nytt", self.iface.mainWindow())
-        self.action_recalculate_dagvatten.setWhatsThis("Beräknar kolumnen dagvatten_lPs i lagret tillromr.")
-        self.action_recalculate_dagvatten.triggered.connect(lambda x: self.recalculate_dagvatten())
+        self.action_recalculate_tillromr = QAction(QIcon(os.path.join(self.plugin_dir, 'icons', 'create_new.png')), "Beräkna kolumner i tillromr på nytt", self.iface.mainWindow())
+        self.action_recalculate_tillromr.setWhatsThis("Beräknar kolumnen area_km2, flode_lPs och dagvatten_lPs i lagret tillromr.")
+        self.action_recalculate_tillromr.triggered.connect(lambda x: self.recalculate_tillromr())
 
 
         #self.actionabout = QAction(QIcon(":/plugins/midv_tolkn/icons/about.png"), "Information", self.iface.mainWindow())
@@ -125,7 +125,7 @@ class midv_tolkn:
         self.menu.addAction(self.actionVacuumDB)
         self.menu.addAction(self.actionZipDB)
         self.menu.addAction(self.actionUpgradeDB)
-        self.menu.addAction(self.action_recalculate_dagvatten)
+        self.menu.addAction(self.action_recalculate_tillromr)
         #self.menu.addAction(self.actionabout)
 
     def unload(self):    
@@ -196,7 +196,7 @@ class midv_tolkn:
             return None
 
         #get EPSG in the original db
-        EPSG = utils.sql_load_fr_db("""SELECT srid FROM geom_cols_ref_sys WHERE Lower(f_table_name) = Lower('gvmag') AND Lower(f_geometry_column) = Lower('geometry')""",from_db)
+        EPSG = utils.sql_load_fr_db("""SELECT srid FROM geom_cols_ref_sys WHERE Lower(f_table_name) = Lower('gvmag') AND Lower(f_geometry_column) = Lower('geometry')""", from_db)
 
         #preparations to create new db of new design
         if not set_locale:
@@ -208,19 +208,19 @@ class midv_tolkn:
 
         #now create database of the updated design
         from .create_tolkn_db import NewDb
-        newdbinstance = NewDb(self.iface, verno, user_select_CRS=False, EPSG_code = EPSG[1][0][0], set_locale=set_locale)
+        newdbinstance = NewDb(self.iface, verno, user_select_CRS=True, EPSG_code=EPSG[1][0][0], set_locale=set_locale)
         if not newdbinstance.dbpath:
             QApplication.restoreOverrideCursor()
             return None
         #transfer data to the new database
-        foo = utils.UpgradeDatabase(from_db,newdbinstance.dbpath, EPSG)
+        foo = utils.UpgradeDatabase(from_db, newdbinstance.dbpath)
 
         #set new database as the current db and load these layers
         if not newdbinstance.dbpath=='':
             self.db = newdbinstance.dbpath
         self.load_the_layers()
 
-    def recalculate_dagvatten(self):
+    def recalculate_tillromr(self):
         if not self.db:
             db, ok = QFileDialog.getOpenFileName(None,
                                                   'Ange tolknings-db',
@@ -231,21 +231,15 @@ class midv_tolkn:
             db = self.db
         QApplication.setOverrideCursor(Qt.WaitCursor)
         try:
-            utils.sql_alter_db(db, """UPDATE tillromr SET dagvatten_lPs = NULL;""")
-            utils.sql_alter_db(db, '''UPDATE tillromr SET "dagvatten_lPs" = (SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100)*(tillromr.gvbildn_mm/(365*86400))*(tillromr.andel_t_mag_proc/100)) 
-                                                    FROM (SELECT ST_Intersection(tillromr.geometry, d.geometry) as inters, bortledning_proc 
-                                                          FROM dagvyta AS d 
-                                                          WHERE CASE WHEN NOT EXISTS (SELECT 1 FROM SpatialIndex WHERE f_table_name = 'dagvyta' LIMIT 1) THEN ST_Intersects(tillromr.geometry, d.geometry)
-                                                                    ELSE d.ROWID IN (SELECT rowid FROM SpatialIndex WHERE f_table_name = 'dagvyta' AND search_frame = tillromr.geometry) END
-                                                    ) AS foo 
-                                                     WHERE st_dimension(foo.inters) = 2);''')
+            for sql in utils.recalculate_tillromr_queries:
+                utils.sql_alter_db(db, sql)
         except:
             QApplication.restoreOverrideCursor()
             raise
         else:
             QApplication.restoreOverrideCursor()
             self.iface.messageBar().pushSuccess("Information",
-                                                "Dagvatten calculated in table tillromr")
+                                                "Columns area_km2, flode_lPs and dagvatten_lPs recalculated in table tillromr")
         
     def vacuum_db(self):
         force_another_db = False

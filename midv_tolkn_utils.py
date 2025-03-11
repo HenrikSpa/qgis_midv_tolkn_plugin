@@ -159,6 +159,20 @@ class MessagebarAndLog(object):
     def critical(bar_msg=None, log_msg=None, duration=10, button=True, optional_bar=False):
         MessagebarAndLog.log(bar_msg, log_msg, duration, Qgis.Critical, Qgis.Critical, button)
 
+
+recalculate_tillromr_queries = ["""UPDATE tillromr SET area_km2 = round(ST_Area(geometry)/1000000.0,2)""",
+                                """UPDATE tillromr SET flode_lPs = round(ST_Area(geometry)*(gvbildn_mm/(365*86400))*andel_t_mag_proc/100.0,1)""",
+                                """UPDATE tillromr SET dagvatten_lPs = NULL;""",
+                                 '''UPDATE tillromr SET "dagvatten_lPs" = (SELECT SUM(ST_Area(foo.inters)*(foo.bortledning_proc/100)*(tillromr.gvbildn_mm/(365*86400))*(tillromr.andel_t_mag_proc/100)) 
+                                                                                     FROM (SELECT ST_Intersection(tillromr.geometry, d.geometry) as inters, bortledning_proc 
+                                                                                           FROM dagvyta AS d 
+                                                                                           WHERE CASE WHEN NOT EXISTS (SELECT 1 FROM SpatialIndex WHERE f_table_name = 'dagvyta' LIMIT 1) THEN ST_Intersects(tillromr.geometry, d.geometry)
+                                                                                                     ELSE d.ROWID IN (SELECT rowid FROM SpatialIndex WHERE f_table_name = 'dagvyta' AND search_frame = tillromr.geometry) END
+                                                                                     ) AS foo 
+                                                                                      WHERE st_dimension(foo.inters) = 2);'''
+                                ]
+
+
 class UpgradeDatabase():#in use
     """
     Observera att denna uppgraderingsfunktion inte är särskilt intelligent...
@@ -167,15 +181,14 @@ class UpgradeDatabase():#in use
     ÖVRIGA_TABELLER:
         Den utgår från NYA databas-formatet och letar efter tabeller i gamla databasen som har samma namn och sedan försöker den kopiera innehållet i de kolumner som ska finnas i nya databasen
     """
-    def __init__(self,from_db,to_db,EPSG_code):
-        self.export_2_splite(from_db,to_db, EPSG_code)
+    def __init__(self, from_db, to_db):
+        self.export_2_splite(from_db, to_db)
         
-    def export_2_splite(self,source_db,target_db, EPSG_code):
+    def export_2_splite(self,source_db,target_db):
         """
         Exports a datagbase to a new spatialite database file
         :param target_db: The name of the new database file
         :param source_db: The name of the source database file
-        :param EPSG_code:
         :return:
 
         """
@@ -199,6 +212,10 @@ class UpgradeDatabase():#in use
         conn.commit()
 
         self.curs.execute(r"""DETACH DATABASE a""")
+
+        for sql in recalculate_tillromr_queries:
+            self.curs.execute(sql)
+        conn.commit()
         self.curs.execute('vacuum')
 
         MessagebarAndLog.info("Export done! Layers from the new database will be loaded to your qgis project")
@@ -207,14 +224,14 @@ class UpgradeDatabase():#in use
         conn.close()
 
     def to_sql(self, tname):
-        self.curs.execute(f"""SELECT * FROM {tname} LIMIT 1""")
+        self.curs.execute(f"""SELECT * FROM "{tname}" LIMIT 1""")
         columns_list = [col[0] for col in self.curs.description]
 
         if tname.startswith('zz_'):
             columns_list = [col for col in columns_list if col != 'pkuid']
 
         try:
-            self.curs.execute(f"""SELECT * FROM a.{tname} LIMIT 1""")
+            self.curs.execute(f"""SELECT * FROM a."{tname}" LIMIT 1""")
         except sqlite3.OperationalError as e:
             if 'no such table' in str(e):
                 return
@@ -222,12 +239,30 @@ class UpgradeDatabase():#in use
                 raise
 
         old_columns_list = [col[0] for col in self.curs.description]
-        column_names = ', '.join([c for c in columns_list if c in old_columns_list])
-        print(f"old_columns_list {old_columns_list}, columns_list {columns_list}, got names {column_names} ")
+        columns_to_use = [c for c in columns_list if c in old_columns_list]
 
+        self.curs.execute("""SELECT f_geometry_column, srid FROM geometry_columns WHERE f_table_name = ?""", (tname,))
+        dest_geom_cols_epsg = {row[0]: row[1] for row in self.curs.fetchall()}
+        #source_geom_cols_epsg = {row[0]: row[1] for row in self.curs.execute(
+        #    """SELECT f_geometry_column, srid FROM a.geometry_columns WHERE f_table_name = ?""",
+        #    tname)}
+
+        geom_cols = [c for c in columns_to_use if c in dest_geom_cols_epsg]
+        other = [c for c in columns_to_use if c not in geom_cols]
+
+        all_cols = list(other)
+        all_cols.extend(geom_cols)
+
+        column_names = ', '.join([f'"{c}"' for c in all_cols])
+        source_cols = [f'''"{c}"''' for c in other]
+        if geom_cols:
+            source_cols.extend([f'''ST_Transform("{c}", {dest_geom_cols_epsg[c]})''' for c in geom_cols])
+
+
+        sql = f'''INSERT OR IGNORE INTO {tname} ({column_names}) SELECT {', '.join(source_cols)} FROM a."{tname}"'''
+
+        #print(f"old_columns_list {old_columns_list}, columns_list {columns_list}, got names {column_names} ")
         try:
-            sql = r"insert or ignore into %s (%s) select %s from a.%s" % (
-                tname, column_names, column_names, tname)
             self.curs.execute(sql)
         except Exception as e:
             MessagebarAndLog.critical("Export warning: sql failed. See message log.", sql + "\nmsg: " + str(e))

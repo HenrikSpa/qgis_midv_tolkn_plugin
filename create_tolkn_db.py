@@ -32,20 +32,20 @@ from . import midv_tolkn_utils as utils
 
 
 class NewDb():
-    def __init__(self, iface, verno, user_select_CRS=True, EPSG_code='4326', set_locale=False,db_path=''):
+    def __init__(self, iface, verno, user_select_CRS=True, EPSG_code=None, set_locale=False,db_path=''):
         self.dbpath = db_path
         self.iface = iface
         self.create_new_db(verno,user_select_CRS,EPSG_code, set_locale)
         
-    def create_new_db(self, verno, user_select_CRS=True, EPSG_code='4326', set_locale=False, ):
+    def create_new_db(self, verno, user_select_CRS=True, EPSG_code=None, set_locale=False, ):
         """Open a new DataBase (create an empty one if file doesn't exists) and set as default DB"""
         if user_select_CRS:
-            epsgid = self.ask_for_CRS(set_locale)
+            epsgid = self.ask_for_CRS(set_locale, EPSG_code)
             if not epsgid:
                 self.iface.messageBar().pushMessage("Information","User aborted", 1,duration=5)
                 return
         else:
-            epsgid=EPSG_code
+            epsgid = '4326'
 
         epsgid = str(epsgid)
 
@@ -116,7 +116,10 @@ class NewDb():
                     self.cur.execute(r"""delete from spatial_ref_sys_aux where srid NOT IN ('%s', '4326')""" % epsgid)
                 except:
                     pass
-                self.cur.execute(r"""delete from spatial_ref_sys where srid NOT IN ('%s', '4326')""" % epsgid)
+                epsg_ids_to_keep = [str(epsgid), '4326']
+                if EPSG_code is not None and EPSG_code not in epsg_ids_to_keep:
+                    epsg_ids_to_keep.append(str(EPSG_code))
+                self.cur.execute("""delete from spatial_ref_sys where srid NOT IN ({})""".format(', '.join(epsg_ids_to_keep)))
 
                 self.insert_datadomains()
 
@@ -138,12 +141,13 @@ class NewDb():
 
         QApplication.restoreOverrideCursor()
 
-    def ask_for_CRS(self, set_locale):
+    def ask_for_CRS(self, set_locale, default_crs=None):
         # USER MUST SELECT CRS FIRST!!
-        if set_locale == 'sv_SE':
-            default_crs = 3006
-        else:
-            default_crs = 4326
+        if default_crs is None:
+            if set_locale == 'sv_SE':
+                default_crs = 3006
+            else:
+                default_crs = 4326
         EPSGID, ok = QInputDialog.getInt(None, "Select CRS", "Give EPSG-ID (integer) corresponding to\nthe CRS you want to use in the database:",default_crs)
         if not ok:
             return None
