@@ -36,6 +36,7 @@ try:
 except:
     compression = zipfile.ZIP_STORED
 
+from qgis.utils import spatialite_connect
 #add midv_tolkn plugin directory to pythonpath (needed here to allow importing modules from subfolders)
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/tools'))
@@ -74,6 +75,11 @@ class midv_tolkn:
         self.actionUpgradeDB = QAction(QIcon(os.path.join(self.plugin_dir, 'icons', 'create_new.png')), "Uppgradera tolknings-databas", self.iface.mainWindow())
         self.actionUpgradeDB.setWhatsThis("Uppgradera en befintlig tolknings-databas till ny databas-struktur.")
         self.actionUpgradeDB.triggered.connect(lambda x: self.upgrade_db())
+
+        self.action_recalculate_tillromr = QAction(QIcon(os.path.join(self.plugin_dir, 'icons', 'create_new.png')), "Beräkna kolumner i tillromr på nytt", self.iface.mainWindow())
+        self.action_recalculate_tillromr.setWhatsThis("Beräknar kolumnen area_km2, flode_lPs och dagvatten_lPs i lagret tillromr.")
+        self.action_recalculate_tillromr.triggered.connect(lambda x: self.recalculate_tillromr())
+
 
         #self.actionabout = QAction(QIcon(":/plugins/midv_tolkn/icons/about.png"), "Information", self.iface.mainWindow())
         #self.actionabout.triggered.connect(lambda x: self.about)
@@ -119,6 +125,7 @@ class midv_tolkn:
         self.menu.addAction(self.actionVacuumDB)
         self.menu.addAction(self.actionZipDB)
         self.menu.addAction(self.actionUpgradeDB)
+        self.menu.addAction(self.action_recalculate_tillromr)
         #self.menu.addAction(self.actionabout)
 
     def unload(self):    
@@ -156,7 +163,8 @@ class midv_tolkn:
         QApplication.restoreOverrideCursor()#now this long process is done and the cursor is back as normal
 
     def load_the_layers(self):
-        LoadLayers(qgis.utils.iface,self.db)
+        loadlayers = LoadLayers(qgis.utils.iface,self.db)
+        self.db = loadlayers.dbpath
 
     def new_db(self, set_locale=False):
         if not set_locale:
@@ -165,8 +173,8 @@ class midv_tolkn:
         filenamepath = os.path.join(os.path.dirname(__file__),"metadata.txt" )
         iniText = QSettings(filenamepath , QSettings.IniFormat)
         verno = str(iniText.value('version')) 
-        from .create_tolkn_db import newdb
-        newdbinstance = newdb(verno, set_locale=set_locale)
+        from .create_tolkn_db import NewDb
+        newdbinstance = NewDb(self.iface, verno, set_locale=set_locale)
         if not newdbinstance.dbpath=='':
             self.db = newdbinstance.dbpath
 
@@ -188,7 +196,7 @@ class midv_tolkn:
             return None
 
         #get EPSG in the original db
-        EPSG = utils.sql_load_fr_db("""SELECT srid FROM geom_cols_ref_sys WHERE Lower(f_table_name) = Lower('gvmag') AND Lower(f_geometry_column) = Lower('geometry')""",from_db)
+        EPSG = utils.sql_load_fr_db("""SELECT srid FROM geom_cols_ref_sys WHERE Lower(f_table_name) = Lower('gvmag') AND Lower(f_geometry_column) = Lower('geometry')""", from_db)
 
         #preparations to create new db of new design
         if not set_locale:
@@ -199,18 +207,39 @@ class midv_tolkn:
         verno = str(iniText.value('version'))
 
         #now create database of the updated design
-        from .create_tolkn_db import newdb
-        newdbinstance = newdb(verno, user_select_CRS=False, EPSG_code = EPSG[1][0][0], set_locale=set_locale)
+        from .create_tolkn_db import NewDb
+        newdbinstance = NewDb(self.iface, verno, user_select_CRS=True, EPSG_code=EPSG[1][0][0], set_locale=set_locale)
         if not newdbinstance.dbpath:
             QApplication.restoreOverrideCursor()
             return None
         #transfer data to the new database
-        foo = utils.UpgradeDatabase(from_db,newdbinstance.dbpath, EPSG)
+        foo = utils.UpgradeDatabase(from_db, newdbinstance.dbpath)
 
         #set new database as the current db and load these layers
         if not newdbinstance.dbpath=='':
             self.db = newdbinstance.dbpath
         self.load_the_layers()
+
+    def recalculate_tillromr(self):
+        if not self.db:
+            db, ok = QFileDialog.getOpenFileName(None,
+                                                  'Ange tolknings-db',
+                                                  '', "Spatialite (*.sqlite)")
+            if not ok:
+                return
+        else:
+            db = self.db
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            for sql in utils.recalculate_tillromr_queries:
+                utils.sql_alter_db(db, sql)
+        except:
+            QApplication.restoreOverrideCursor()
+            raise
+        else:
+            QApplication.restoreOverrideCursor()
+            self.iface.messageBar().pushSuccess("Information",
+                                                "Columns area_km2, flode_lPs and dagvatten_lPs recalculated in table tillromr")
         
     def vacuum_db(self):
         force_another_db = False
@@ -261,5 +290,5 @@ class midv_tolkn:
             zf.close()
             connection.conn.rollback()
             connection.closedb()
-            self.iface.messageBar().pushMessage("Information","Database backup was written to " + bkupname, 1,duration=15)
+            self.iface.messageBar().pushSuccess("Information", "Database backup was written to " + bkupname)
             QApplication.restoreOverrideCursor()

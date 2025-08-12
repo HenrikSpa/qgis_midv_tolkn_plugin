@@ -3,7 +3,7 @@
 name=midv_tolkn
 qgisMinimumVersion=3.4.3
 description=Skapar en tolkningsdatabas och laddar dess lager till ditt qgis-projekt.
-version=Version 0.7.1
+version=Version 1.0.0
 author=Josef Källgården
 email=groundwatergis@gmail.com
 
@@ -19,6 +19,27 @@ experimental=False
 deprecated=False
 
 changelog=
+        Version 1.0.0:
+        - Added the concept of "dagvatten" for tillromr:
+            * New table "dagvatten".
+            * New column "dagvatten" in tillromr.
+            * Trigger in tillromr that updates column dagvatten.
+            * Function in the plugin to manually trigger update of column dagvatten.
+
+            The concept of dagvatten is used to calculate and visualize a reduced
+            "flode_lPs" when polygons in tillromr overlaps polygons representing areas
+            where the rain water is intercepted by areas without infiltration and removed
+            from the catchment. An example is dense cities where rainfall is intercepted
+            by roads and buildings and lead to surface water.
+
+        - Added tables kommentarer_punkt, kommentarer_linje, kommentarer_yta, that can
+            be used to add general comments.
+        - Added "stalp" to gvdel.
+        - Added "bergrygg" and "djupfåra" to strukturlinje.
+        - Added more categories to omattad_zon.
+        - Added time specification for the categories or trptid.
+        - Updated styles and categories for trptid.
+        - User can convert coordinate system while upgrading database.
         Version 0.7.1:
         - Updated styled for gvflode intermag to easier distinguish the two types.
         Version 0.7.0:

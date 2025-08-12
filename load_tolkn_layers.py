@@ -44,7 +44,6 @@ class LoadLayers():
         self.dbpath = db
         self.group_name = group_name
         self.iface = iface
-        QApplication.setOverrideCursor(Qt.WaitCursor)
         if db:
             use_current_db = utils.Askuser("YesNo","""Do you want to load layers from %s?"""%db,'Which database?')
             if use_current_db.result == 0:
@@ -56,6 +55,7 @@ class LoadLayers():
         if not self.dbpath:
             QApplication.restoreOverrideCursor()
         else:
+            QApplication.setOverrideCursor(Qt.WaitCursor)
             self.root = QgsProject.instance().layerTreeRoot()
             #self.remove_relations()
             self.remove_layers()
@@ -71,9 +71,9 @@ class LoadLayers():
         else:
             position_index = 0
 
-        MyGroup = qgis.core.QgsLayerTreeGroup(name=self.group_name, checked=True)
-        self.root.insertChildNode(position_index, MyGroup)
-        MySubGroup = MyGroup.addGroup('värdeförråd')
+        main_group = qgis.core.QgsLayerTreeGroup(name=self.group_name, checked=True)
+        self.root.insertChildNode(position_index, main_group)
+
         uri = QgsDataSourceUri()
         uri.setDatabase(self.dbpath)
         canvas = self.iface.mapCanvas()
@@ -85,6 +85,10 @@ class LoadLayers():
         conn_ok, dd_tables = utils.sql_load_fr_db("select name from sqlite_master where name like 'zz_%'", self.dbpath)
         if not conn_ok:
             return
+        #tstring = """DB error!!"""%(sql)
+        existing_tables = utils.sql_load_fr_db("""SELECT tbl_name FROM sqlite_master WHERE (type = 'table' OR type = 'view')""", self.dbpath)[1]
+        existing_tables = [x[0] for x in existing_tables]
+
         d_domain_tables = [str(dd_table[0]) for dd_table in dd_tables]
         for tablename in d_domain_tables:
             uristring= 'dbname="' + self.dbpath + '" table="' + tablename + '"'
@@ -101,10 +105,35 @@ class LoadLayers():
             except:
                 pass
 
+        comment_created = False
+        for tablename in defs.comment_layers():
+            if not tablename in existing_tables:
+                continue
+            #uristring= 'dbname="' + self.dbpath + '" table="' + tablename + '"'
+            #layer = QgsVectorLayer(uristring,tablename, 'spatialite')
+            uri.setDataSource('', tablename, 'geometry')
+            layer = QgsVectorLayer(uri.uri(), tablename, 'spatialite')
+
+            if layer.isValid():
+                layer_list.append(layer)
+                comment_created = True
+            else:
+                qgis.utils.iface.messageBar().pushMessage("Warning","Table %s was not valid. DB probably created w old plugin version."%str(tablename), 1,duration=5)
+
+        if comment_created:
+            comment_group = main_group.addGroup('kommentarer')
+        else:
+            comment_group = None
+        zz_group = main_group.addGroup('värdeförråd')
+
         #then load all spatial layers
         layers = default_layers()  # ordered dict with layer-name:(zz_layer-name,layer_name_for_map_legend)
         for tablename, tup in list(layers.items()):
-            try:
+            if tablename not in existing_tables:
+                qgis.utils.iface.messageBar().pushMessage("Information",
+                                                          "Table %s not found in db. DB probably created w old plugin version. And upgrade is suggested." % str(
+                                                              tablename), 1, duration=5)
+            else:
                 uri.setDataSource('',tablename,'geometry')
                 layer = QgsVectorLayer(uri.uri(), tablename, 'spatialite') # Adding the layer as 'spatialite' instead of ogr vector layer is preferred
                 if layer.isValid():
@@ -112,8 +141,7 @@ class LoadLayers():
                     layer_name_list.append(layer.name())
                 else:
                     qgis.utils.iface.messageBar().pushMessage("Warning","Table %s was not valid. DB probably created w old plugin version."%str(tablename), 1,duration=5)
-            except:
-                qgis.utils.iface.messageBar().pushMessage("Warning","Table %s not found in db. DB probably created w old plugin version."%str(tablename), 1,duration=5)
+
         #now loop over all the layers and set styles etc
 
         db_version = self.get_db_version()
@@ -122,9 +150,11 @@ class LoadLayers():
         for layer in layer_list:
             QgsProject.instance().addMapLayers([layer],False)
             if layer.name() in d_domain_tables:
-                MySubGroup.insertLayer(0,layer)
+                zz_group.insertLayer(0,layer)
+            elif layer.name() in defs.comment_layers():
+                comment_group.insertLayer(0,layer)
             else:
-                MyGroup.insertLayer(0,layer)
+                main_group.insertLayer(0,layer)
 
             layer_dict[layer.name()] = layer
 
@@ -141,11 +171,17 @@ class LoadLayers():
 
             if layer.name() in defs.unchecked_layers():
                 #QgsProject.instance().layerTreeRoot().findLayer(layer.id()).setItemVisibilityChecked(False)
-                MyGroup.findLayer(layer.id()).setItemVisibilityChecked(False)
-                #w_lvls_last_geom.setItemVisibilityCheckedRecursive(False)
+                for _group in (main_group, comment_group):
+                    if not _group:
+                        continue
+                    _layer = _group.findLayer(layer.id())
+                    if _layer:
+                        _layer.setItemVisibilityChecked(False)
+                        break
 
-
-        MySubGroup.setExpanded(False)
+        zz_group.setExpanded(False)
+        if comment_group:
+            comment_group.setExpanded(False)
         
         # fix value relations
         for lyr in list(layers.keys()):

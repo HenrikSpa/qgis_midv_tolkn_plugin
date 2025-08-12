@@ -22,23 +22,27 @@ import collections
 
 def default_layers(): # dictionary of layers with (some) corresponding data domains and relevant layer names
     d = collections.OrderedDict()
-    d['sprickzon']=(None,'sprickzoner m.m.')
-    d['strukturlinje']=('zz_strukturlinje','strukturlinjer m.m.')
     d['gvmag']=('zz_gvmag','grundvattenmagasin')
-    d['gvflode']=('zz_gvflode','grundvattenflöde')
-    d['gvdel']=('zz_gvdel','grundvattendelare och andra gränser')
-    d['tillromr']=('zz_tillromr','tillrinningsområden')
-    d['trptid']=('zz_trptid','transporttid')
+    d['sprickzon']=(None,'sprickzon m.m.')
     d['omattad_zon']=('zz_omattad_zon','omättad zon')
+    d['tillromr']=('zz_tillromr','tillrinningsområde')
+    d['trptid']=('zz_trptid','transporttid')
+    d['dagvyta']=(None,'dagvattenyta')
+    d['strukturlinje']=('zz_strukturlinje','strukturlinjer m.m.')
+    d['gvdel']=('zz_gvdel','grundvattendelare och andra gränser')
+    d['gvflode']=('zz_gvflode','grundvattenflöde')
     d['profillinje']=(None, 'profillinje')
     return d
+
+def comment_layers():
+    return ['kommentarer_yta', 'kommentarer_linje', 'kommentarer_punkt']
 
 def unchecked_layers():
     """
     Layers that should not be checked in map layer list
     :return:
     """
-    return ['profillinje']
+    return ['profillinje', 'dagvyta', 'kommentarer_punkt', 'kommentarer_linje', 'kommentarer_yta']
 
 def relations(): #CURRENTLY NOT IN USE tuple of relation_names and relation_ids
     return (('gvmag_relation','gvmag_relation_id'),('gvdel_relation','gvdel_relation_id'),('gvflode_relation','gvflode_relation_id'),('tillromr_relation','tillromr_relation_id'),('strukturlinje_relation','strukturlinje_relation_id'),('trptid_relation','trptid_relation_id'))
