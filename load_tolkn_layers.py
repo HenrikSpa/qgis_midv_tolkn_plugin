@@ -191,10 +191,16 @@ class LoadLayers():
                     self.create_layer_value_relations(layer_dict[lyr], layer_dict[layers[lyr][0]], layer_dict[lyr].dataProvider().fieldNameIndex('typ'), 'typ','beskrivning')
 
         #special fix for gvflode
-        self.create_layer_value_relations(layer_dict['gvflode'], layer_dict['zz_gvmag'], layer_dict['gvflode'].dataProvider().fieldNameIndex('intermag'), 'typ','beskrivning')
-        for projektdependent_layer in ['profillinje']: #, 'profil' # Implementera vid behov
-            if projektdependent_layer in layer_dict:
-                self.create_layer_value_relations(layer_dict[projektdependent_layer], layer_dict['zz_projekt'], layer_dict[projektdependent_layer].dataProvider().fieldNameIndex('projekt'), 'pkuid','namn')
+        print(f"db_version {db_version}")
+        if db_version < '1.0.0':
+            self.create_layer_value_relations(layer_dict['gvflode'], layer_dict['zz_gvmag'], layer_dict['gvflode'].dataProvider().fieldNameIndex('intermag'), 'typ','beskrivning')
+            for projektdependent_layer in ['profillinje']:  # , 'profil' # Implementera vid behov
+                if projektdependent_layer in layer_dict:
+                    self.create_layer_value_relations(layer_dict[projektdependent_layer], layer_dict['zz_projekt'],
+                                                      layer_dict[projektdependent_layer].dataProvider().fieldNameIndex(
+                                                          'projekt'), 'pkuid', 'namn')
+        else:
+            self.create_layer_value_relations(layer_dict['gvflode'], layer_dict['zz_gvflode'], layer_dict['gvflode'].dataProvider().fieldNameIndex('intermag'), 'typ','beskrivning')
 
         #last, rename to readable names in map legend
         for layer in layer_list:

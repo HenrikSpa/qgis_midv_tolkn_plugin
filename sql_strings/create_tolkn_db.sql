@@ -16,16 +16,15 @@ CREATE TABLE "zz_tillromr"(pkuid integer primary key autoincrement,"typ" text un
 CREATE TABLE "zz_strukturlinje"(pkuid integer primary key autoincrement,"typ" text unique not null,"beskrivning" text);
 CREATE TABLE "zz_trptid"(pkuid integer primary key autoincrement,"typ" integer unique not null,"beskrivning" text);
 CREATE TABLE "zz_omattad_zon"(pkuid integer primary key autoincrement,"typ" integer unique not null,"beskrivning" text);
-CREATE TABLE "zz_projekt" (pkuid integer primary key autoincrement,"namn" text unique not null,"kommentar" text);
 CREATE TABLE "gvmag"(pkuid integer primary key autoincrement,"namn" text,"typ" text,"ursprung" text,"kommentar" text, "updated" text, FOREIGN KEY(typ) REFERENCES zz_gvmag(typ));
-CREATE TABLE "gvflode"(pkuid integer primary key autoincrement,"namn" text,"typ" text,"ursprung" text,"kommentar" text,"intermag" text, "updated" text,FOREIGN KEY(typ) REFERENCES zz_gvflode(typ), FOREIGN KEY(intermag) REFERENCES zz_gvmag(typ));
+CREATE TABLE "gvflode"(pkuid integer primary key autoincrement,"namn" text,"typ" text,"ursprung" text,"kommentar" text,"intermag" text, "updated" text,FOREIGN KEY(typ) REFERENCES zz_gvflode(typ), FOREIGN KEY(intermag) REFERENCES zz_gvflode(typ));
 CREATE TABLE "gvdel"(pkuid integer primary key autoincrement,"namn" text,"typ" text,"ursprung" text,"kommentar" text, "updated" text, FOREIGN KEY(typ) REFERENCES zz_gvdel(typ));
 CREATE TABLE "tillromr"(pkuid integer primary key autoincrement,"namn" text,"typ" text,"gvbildn_mm" double,"andel_t_mag_proc" double,"area_km2" double,"flode_lPs" double, dagvatten_lPs double, "ursprung" text,"kommentar" text, "updated" text, FOREIGN KEY(typ) REFERENCES zz_tillromr(typ));
 CREATE TABLE "sprickzon"(pkuid integer primary key autoincrement,"namn" text,"typ" text,"ursprung" text,"kommentar" text, "updated" text);
 CREATE TABLE "strukturlinje"(pkuid integer primary key autoincrement,"namn" text,"typ" text,"ursprung" text,"kommentar" text, "updated" text, FOREIGN KEY(typ) REFERENCES zz_strukturlinje(typ));
 CREATE TABLE "trptid"(pkuid integer primary key autoincrement,"typ" integer,"ursprung" text,"kommentar" text, "updated" text, FOREIGN KEY(typ) REFERENCES zz_trptid(typ));
 CREATE TABLE "omattad_zon"(pkuid integer primary key autoincrement,"typ" integer,"ursprung" text,"kommentar" text, "updated" text, FOREIGN KEY(typ) REFERENCES zz_omattad_zon(typ));
-CREATE TABLE "profillinje"(pkuid integer primary key autoincrement, "namn" text not null, "projekt" integer not null, "rapportnamn" text, "kommentar" text, "geom_updated" text, FOREIGN KEY(projekt) REFERENCES zz_projekt(pkuid), UNIQUE (projekt, namn));
+CREATE TABLE "profillinje"(pkuid integer primary key autoincrement, "namn" text not null, "projekt" text not null, "rapportnamn" text, "kommentar" text, "geom_updated" text, UNIQUE (projekt, namn));
 CREATE TABLE "dagvyta"(pkuid integer primary key autoincrement,"typ" text,"markanv" text,"bortledning_proc" double, "ursprung" text, "kommentar" text);
 CREATE TABLE "kommentarer_punkt" (pkuid integer primary key autoincrement,"typ" text, 'kommentar' text, "updated" text);
 CREATE TABLE "kommentarer_linje" (pkuid integer primary key autoincrement,"typ" text, 'kommentar' text, "updated" text);

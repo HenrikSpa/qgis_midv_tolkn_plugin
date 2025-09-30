@@ -1,11 +1,11 @@
 ﻿# -*- coding: utf-8 -*- This line is just for your information, the python plugin will not use the first line
-insert into  "zz_gvflode"("typ","beskrivning") values ('huvudmag','i huvudmagasinet');
-insert into  "zz_gvflode"("typ","beskrivning") values ('jordlager','i jordlager');
-insert into  "zz_gvflode"("typ","beskrivning") values ('överlagrande magasin','i överlagrande magasin');
-insert into  "zz_gvflode"("typ","beskrivning") values ('ytliga jordlager','i ytliga jordlager');
-insert into  "zz_gvflode"("typ","beskrivning") values ('berg','i berggrunden');
+insert into  "zz_gvflode"("typ","beskrivning") values ('huvudmag','huvudmagasinet');
+insert into  "zz_gvflode"("typ","beskrivning") values ('jordlager','jordlager');
+insert into  "zz_gvflode"("typ","beskrivning") values ('överlagrande magasin','överlagrande magasin');
+insert into  "zz_gvflode"("typ","beskrivning") values ('ytliga jordlager','ytliga jordlager');
+insert into  "zz_gvflode"("typ","beskrivning") values ('berg','berggrunden');
 insert into  "zz_gvflode"("typ","beskrivning") values ('ospec','ospecificierat grundvattenflöde');
-insert into  "zz_gvflode"("typ","beskrivning") values ('ytvatten','i ytvatten');
+insert into  "zz_gvflode"("typ","beskrivning") values ('ytvatten','ytvatten');
 insert into  "zz_gvdel"("typ","beskrivning") values ('fast','fast grundvattendelare');
 insert into  "zz_gvdel"("typ","beskrivning") values ('rörlig','rörlig grundvattendelare');
 insert into  "zz_gvdel"("typ","beskrivning") values ('stalp','stalp');

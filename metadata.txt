@@ -38,8 +38,9 @@ changelog=
         - Added "bergrygg" and "djupfåra" to strukturlinje.
         - Added more categories to omattad_zon.
         - Added time specification for the categories or trptid.
-        - Updated styles and categories for trptid.
+        - Updated styles and categories for trptid, omattad_zon, gvflode.
         - User can convert coordinate system while upgrading database.
+        - Removed table zz_project.
         Version 0.7.1:
         - Updated styled for gvflode intermag to easier distinguish the two types.
         Version 0.7.0:
