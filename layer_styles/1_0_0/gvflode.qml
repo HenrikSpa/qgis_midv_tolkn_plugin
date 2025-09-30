@@ -153,8 +153,8 @@
       <rule filter="lower(&quot;typ&quot;)  like '%berg%'" symbol="4" label="berggrunden" key="{726f614a-8d68-46e7-b088-bd925e9891c1}"/>
       <rule filter="lower( &quot;typ&quot; ) like '%ytvatten%'" symbol="5" label="ytvatten" key="{250ae496-fbdb-4515-a6b4-e856e868bdc2}"/>
       <rule filter="lower( &quot;typ&quot; ) like '%ospec%'" symbol="6" label="ospec" key="{18fb5265-d3e1-4440-9e25-6397fb853e6d}"/>
-      <rule filter="&quot;intermag&quot; IS NOT NULL AND (lower( &quot;intermag&quot; ) like '%huvudmag%' OR lower(&quot;typ&quot;)  like '%huvudmag%')" symbol="7" label="utbyte med huvudmagasinet" key="{d6dd86af-393b-488f-a733-90cf63a82bd0}"/>
-      <rule filter="&quot;intermag&quot; IS NOT NULL AND NOT (lower( &quot;intermag&quot; ) like '%huvudmag%' OR lower(&quot;typ&quot;)  like '%huvudmag%')" symbol="8" label="utbyte med annat magasin" key="{1aa27444-7ef8-4874-9866-6f626fa96d84}"/>
+      <rule filter="&quot;intermag&quot; IS NOT NULL AND (lower( &quot;intermag&quot; ) like '%huvudmag%' OR lower(&quot;typ&quot;)  like '%huvudmag%')" symbol="7" label="utbyte huvudmagasin" key="{d6dd86af-393b-488f-a733-90cf63a82bd0}"/>
+      <rule filter="&quot;intermag&quot; IS NOT NULL AND NOT (lower( &quot;intermag&quot; ) like '%huvudmag%' OR lower(&quot;typ&quot;)  like '%huvudmag%')" symbol="8" label="utbyte annat magasin" key="{1aa27444-7ef8-4874-9866-6f626fa96d84}"/>
     </rules>
     <symbols>
       <symbol frame_rate="10" type="line" alpha="1" clip_to_extent="1" name="0" force_rhr="0" is_animated="0">
