@@ -49,7 +49,7 @@ class NewDb():
 
         epsgid = str(epsgid)
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         if epsgid=='0' or not epsgid:
             utils.pop_up_info("Cancelling...")
         else: # If a CRS is selectd, go on and create the database
@@ -57,7 +57,7 @@ class NewDb():
             if self.dbpath == '':
                 QApplication.restoreOverrideCursor()
                 self.dbpath = QFileDialog.getSaveFileName(None, "Ny tolknings-DB","midv_tolkndb.sqlite","Spatialite (*.sqlite)")[0]
-                QApplication.setOverrideCursor(Qt.WaitCursor)
+                QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
             if not self.dbpath:
                 QApplication.restoreOverrideCursor()
                 return

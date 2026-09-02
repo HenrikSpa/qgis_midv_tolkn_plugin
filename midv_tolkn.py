@@ -150,7 +150,7 @@ class midv_tolkn:
     def load_data_domains(self):
         #utils.pop_up_info(msg='This feature is not yet implemented',title='Hold on...')
         #return
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         err_flag = utils.verify_msettings_loaded_and_layer_edit_mode(qgis.utils.iface, self.ms)#verify midv settings are loaded
         if err_flag == 0:
             conn_ok, dd_tables = utils.sql_load_fr_db("select name from sqlite_master where name like 'zz_%'")
@@ -171,7 +171,7 @@ class midv_tolkn:
             set_locale = utils.getcurrentlocale()
 
         filenamepath = os.path.join(os.path.dirname(__file__),"metadata.txt" )
-        iniText = QSettings(filenamepath , QSettings.IniFormat)
+        iniText = QSettings(filenamepath , QSettings.Format.IniFormat)
         verno = str(iniText.value('version')) 
         from .create_tolkn_db import NewDb
         newdbinstance = NewDb(self.iface, verno, set_locale=set_locale)
@@ -203,7 +203,7 @@ class midv_tolkn:
             set_locale = utils.getcurrentlocale()
 
         filenamepath = os.path.join(os.path.dirname(__file__),"metadata.txt" )
-        iniText = QSettings(filenamepath , QSettings.IniFormat)
+        iniText = QSettings(filenamepath , QSettings.Format.IniFormat)
         verno = str(iniText.value('version'))
 
         #now create database of the updated design
@@ -229,7 +229,7 @@ class midv_tolkn:
                 return
         else:
             db = self.db
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             for sql in utils.recalculate_tillromr_queries:
                 utils.sql_alter_db(db, sql)
@@ -255,7 +255,7 @@ class midv_tolkn:
         if not self.db or force_another_db:
             dbpath = QFileDialog.getOpenFileName(None, 'Ange db som ska packas','',"Spatialite (*.sqlite)")[0]
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         utils.sql_alter_db(dbpath,'vacuum')
         QApplication.restoreOverrideCursor()
         
@@ -275,7 +275,7 @@ class midv_tolkn:
             dbpath = QFileDialog.getOpenFileName(None, 'Ange db som du vill skapa backup utav','',"Spatialite (*.sqlite)")[0]
 
         if dbpath:
-            QApplication.setOverrideCursor(Qt.WaitCursor)
+            QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
             connection = utils.dbconnection(dbpath)
             connection.connect2db()
             connection.conn.cursor().execute("begin immediate")

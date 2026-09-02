@@ -55,7 +55,7 @@ class LoadLayers():
         if not self.dbpath:
             QApplication.restoreOverrideCursor()
         else:
-            QApplication.setOverrideCursor(Qt.WaitCursor)
+            QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
             self.root = QgsProject.instance().layerTreeRoot()
             #self.remove_relations()
             self.remove_layers()

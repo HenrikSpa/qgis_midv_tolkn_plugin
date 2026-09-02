@@ -57,8 +57,8 @@ class Askuser(QDialog):
     def __init__(self, question="YesNo", msg = '', dialogtitle='User input needed', parent=None):
         self.result = ''
         if question == 'YesNo':         #  Yes/No dialog
-            reply = QMessageBox.information(parent, dialogtitle, msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
-            if reply==QMessageBox.Yes:
+            reply = QMessageBox.information(parent, dialogtitle, msg, QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes)
+            if reply==QMessageBox.StandardButton.Yes:
                 self.result = 1 #1 = "yes"
             else:
                 self.result = 0  #0="no"
@@ -71,15 +71,15 @@ class Askuser(QDialog):
             msgBox.setText(msg)
             msgBox.setWindowTitle(dialogtitle)
             #msgBox.setWindowModality(Qt.ApplicationModal)
-            msgBox.addButton(btnAll, QMessageBox.ActionRole)
-            msgBox.addButton(btnSelected, QMessageBox.ActionRole)
-            msgBox.addButton(QMessageBox.Cancel)
-            reply = msgBox.exec_()
+            msgBox.addButton(btnAll, QMessageBox.ButtonRole.ActionRole)
+            msgBox.addButton(btnSelected, QMessageBox.ButtonRole.ActionRole)
+            msgBox.addButton(QMessageBox.StandardButton.Cancel)
+            reply = msgBox.exec()
             self.result = reply  # ALL=0, SELECTED=1
         elif question == 'DateShift':
             supported_units = ['microseconds', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks']
             while True:
-                answer = str(QInputDialog.getText(None, "User input needed", "Give needed adjustment of date/time for the data.\nSupported format: +- X <resolution>\nEx: 1 hours, -1 hours, -1 days\nSupported units:\n%s"%', '.join(supported_units), QLineEdit.Normal, '0 hours')[0])
+                answer = str(QInputDialog.getText(None, "User input needed", "Give needed adjustment of date/time for the data.\nSupported format: +- X <resolution>\nEx: 1 hours, -1 hours, -1 days\nSupported units:\n%s"%', '.join(supported_units), QLineEdit.EchoMode.Normal, '0 hours')[0])
                 if not answer:
                     self.result = 'cancel'
                     break
@@ -128,7 +128,7 @@ class MessagebarAndLog(object):
         pass
 
     @staticmethod
-    def log(bar_msg=None, log_msg=None, duration=10, messagebar_level=Qgis.Info, log_level=Qgis.Info, button=True):
+    def log(bar_msg=None, log_msg=None, duration=10, messagebar_level=Qgis.MessageLevel.Info, log_level=Qgis.MessageLevel.Info, button=True):
         if qgis.utils.iface is None:
             return None
         if bar_msg is not None:
@@ -149,15 +149,15 @@ class MessagebarAndLog(object):
 
     @staticmethod
     def info(bar_msg=None, log_msg=None, duration=10, button=True, optional_bar=False):
-        MessagebarAndLog.log(bar_msg, log_msg, duration, Qgis.Info, Qgis.Info, button)
+        MessagebarAndLog.log(bar_msg, log_msg, duration, Qgis.MessageLevel.Info, Qgis.MessageLevel.Info, button)
 
     @staticmethod
     def warning(bar_msg=None, log_msg=None, duration=10, button=True, optional_bar=False):
-        MessagebarAndLog.log(bar_msg, log_msg, duration, Qgis.Warning, Qgis.Warning, button)
+        MessagebarAndLog.log(bar_msg, log_msg, duration, Qgis.MessageLevel.Warning, Qgis.MessageLevel.Warning, button)
 
     @staticmethod
     def critical(bar_msg=None, log_msg=None, duration=10, button=True, optional_bar=False):
-        MessagebarAndLog.log(bar_msg, log_msg, duration, Qgis.Critical, Qgis.Critical, button)
+        MessagebarAndLog.log(bar_msg, log_msg, duration, Qgis.MessageLevel.Critical, Qgis.MessageLevel.Critical, button)
 
 
 recalculate_tillromr_queries = ["""UPDATE tillromr SET area_km2 = round(ST_Area(geometry)/1000000.0,2)""",
@@ -324,7 +324,7 @@ def returnunicode(anything, keep_containers=False): #takes an input and tries to
         if not keep_containers:
             decoded = str(decoded)
     # This is not optimal, but needed for tests where nosetests stand alone PyQt4 instead of QGis PyQt4.
-    elif str(type(anything)) in ("<class 'PyQt4.QtCore.QVariant'>", "<class 'PyQt5.QtCore.QVariant'>"):
+    elif str(type(anything)) in ("<class 'PyQt4.QtCore.QVariant'>", "<class 'PyQt5.QtCore.QVariant'>", "<class 'PyQt6.QtCore.QVariant'>"):
         if anything.isNull():
             decoded = ''
         else:
