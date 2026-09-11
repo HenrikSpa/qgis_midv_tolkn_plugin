@@ -26,7 +26,7 @@ import re
 import qgis.utils
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QApplication, QFileDialog
-from qgis.core import QgsLogger, QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsRelation, QgsEditorWidgetSetup
+from qgis.core import Qgis, QgsLogger, QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsRelation, QgsEditorWidgetSetup
 from qgis.utils import spatialite_connect
 
 from . import midv_tolkn_defs as defs
@@ -118,7 +118,7 @@ class LoadLayers():
                 layer_list.append(layer)
                 comment_created = True
             else:
-                qgis.utils.iface.messageBar().pushMessage("Warning","Table %s was not valid. DB probably created w old plugin version."%str(tablename), 1,duration=5)
+                qgis.utils.iface.messageBar().pushMessage("Warning","Table %s was not valid. DB probably created w old plugin version."%str(tablename), Qgis.MessageLevel.Warning,duration=5)
 
         if comment_created:
             comment_group = main_group.addGroup('kommentarer')
@@ -132,7 +132,7 @@ class LoadLayers():
             if tablename not in existing_tables:
                 qgis.utils.iface.messageBar().pushMessage("Information",
                                                           "Table %s not found in db. DB probably created w old plugin version. And upgrade is suggested." % str(
-                                                              tablename), 1, duration=5)
+                                                              tablename), Qgis.MessageLevel.Warning, duration=5)
             else:
                 uri.setDataSource('',tablename,'geometry')
                 layer = QgsVectorLayer(uri.uri(), tablename, 'spatialite') # Adding the layer as 'spatialite' instead of ogr vector layer is preferred
@@ -140,7 +140,7 @@ class LoadLayers():
                     layer_list.append(layer)
                     layer_name_list.append(layer.name())
                 else:
-                    qgis.utils.iface.messageBar().pushMessage("Warning","Table %s was not valid. DB probably created w old plugin version."%str(tablename), 1,duration=5)
+                    qgis.utils.iface.messageBar().pushMessage("Warning","Table %s was not valid. DB probably created w old plugin version."%str(tablename), Qgis.MessageLevel.Warning,duration=5)
 
         #now loop over all the layers and set styles etc
 
@@ -238,7 +238,7 @@ class LoadLayers():
                     if str(key)==rel.id():
                         print(('added relation %s'%str(lyr)))
             else:
-                qgis.utils.iface.messageBar().pushMessage("Error","""Failed to create relation %s!"""%str(lyr),2)
+                qgis.utils.iface.messageBar().pushMessage("Error","""Failed to create relation %s!"""%str(lyr), Qgis.MessageLevel.Critical)
                 print(("""Failed to create relation %s!"""%str(lyr)))
             i+=1
 
@@ -293,7 +293,7 @@ class LoadLayers():
         try:
             remove_group = self.root.findGroup(self.group_name)
             self.root.removeChildNode(remove_group)
-            qgis.utils.iface.messageBar().pushMessage("Information","""Removed any old group 'Midvatten_TolkningsDB with associated layers""",1,duration=10)
+            qgis.utils.iface.messageBar().pushMessage("Information","""Removed any old group 'Midvatten_TolkningsDB with associated layers""", Qgis.MessageLevel.Warning,duration=10)
         except:
             print('could not remove layers, probably not existing')
             
@@ -322,7 +322,7 @@ class LoadLayers():
         else:
             qgis.utils.iface.messageBar().pushMessage("Information",
                                                       """Version number of database could not be parsed. Using oldest layer styles.""",
-                                                      1, duration=10)
+                                                      Qgis.MessageLevel.Warning, duration=10)
             db_version = None
         return db_version
 

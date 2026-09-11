@@ -42,7 +42,7 @@ class NewDb():
         if user_select_CRS:
             epsgid = self.ask_for_CRS(set_locale, EPSG_code)
             if not epsgid:
-                self.iface.messageBar().pushMessage("Information","User aborted", 1,duration=5)
+                self.iface.messageBar().pushMessage("Information","User aborted", Qgis.MessageLevel.Warning,duration=5)
                 return
         else:
             epsgid = '4326'

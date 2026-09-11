@@ -374,12 +374,12 @@ def sql_load_fr_db(sql='', dbpath=''):#in use
             ConnectionOK = True
         except:
             textstring = """DB error!!: %s"""%sql
-            qgis.utils.iface.messageBar().pushMessage("Error",textstring, 2,duration=15) 
+            qgis.utils.iface.messageBar().pushMessage("Error",textstring, Qgis.MessageLevel.Critical,duration=15) 
             ConnectionOK = False
             result = ''
     else:
         textstring = f"""Database '{dbpath}' not found!"""
-        qgis.utils.iface.messageBar().pushMessage("Error",textstring, 2,duration=15) 
+        qgis.utils.iface.messageBar().pushMessage("Error",textstring, Qgis.MessageLevel.Critical,duration=15) 
         ConnectionOK = False
         result = ''
     return ConnectionOK, result
